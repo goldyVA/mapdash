@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Map Dash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Lilita+One&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1d2440; --ink-soft:#4d557a; --sea:#3fb6c9; --sky:#dcf0f5; --contour:#c2e2ea;
+    --sun:#ffcf3a; --leaf:#34c27a; --tangerine:#ff9a3c; --tomato:#ff5a43; --white:#fff; --mist:#f2fafc;
+    --display:'Lilita One','Arial Rounded MT Bold',system-ui,sans-serif;
+    --body:'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --d:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:var(--body);color:var(--ink);min-height:100vh;line-height:1.45;
+    background-color:var(--sky);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='520' height='520' fill='none' stroke='%23c2e2ea' stroke-width='2'%3E%3Cpath d='M70 250c-10-80 60-160 160-170 110-10 210 40 220 140 10 110-70 200-180 205C150 430 80 340 70 250z'/%3E%3Cpath d='M120 250c-5-55 40-110 110-115 75-5 145 30 150 98 5 75-50 135-125 138-70 3-130-55-135-121z'/%3E%3Cpath d='M170 250c-2-30 25-62 65-64 42-2 82 18 84 56 2 40-28 74-70 75-40 1-77-30-79-67z'/%3E%3C/svg%3E");
+  }
+  .hidden{display:none !important}
+  h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:.2px;line-height:1.1}
+
+  button{font:inherit;font-weight:600;cursor:pointer;color:var(--ink);background:var(--white);
+    border:3px solid var(--ink);border-radius:12px;padding:8px 16px;box-shadow:0 4px 0 var(--ink);
+    transition:transform .07s, box-shadow .07s}
+  button:hover{background:var(--mist)}
+  button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+  button:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:0 4px 0 var(--ink)}
+  button.primary{background:var(--sun)}
+  button.primary:hover{background:#ffda62}
+  button.danger{color:#c3321e}
+  button.small{padding:3px 10px;font-size:14px;border-width:2px;border-radius:9px;box-shadow:0 3px 0 var(--ink)}
+  button.small:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+  button.big{font-family:var(--display);font-weight:400;font-size:28px;padding:8px 34px;border-radius:16px;box-shadow:0 6px 0 var(--ink)}
+  button.big:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ink)}
+  input[type=text],input[type=password],input:not([type]){font:inherit;padding:8px 10px;border:2px solid var(--ink);border-radius:10px;width:100%;background:#fff;color:var(--ink)}
+  input:focus-visible,button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--sea);outline-offset:2px}
+  input[type=checkbox]{width:20px;height:20px;accent-color:var(--ink)}
+  input[type=range]{accent-color:var(--ink)}
+
+  .topbar{background:var(--ink);color:#fff;padding:10px 22px;display:flex;align-items:center;gap:14px}
+  .brand{display:flex;align-items:center;gap:8px;font-family:var(--display);font-size:26px;color:var(--sun);letter-spacing:.3px}
+  .brand svg{flex-shrink:0}
+  .topbar .sub{color:#b9c1e0;font-size:15px}
+  main{padding:22px 18px 40px}
+
+  .card{background:var(--white);border:3px solid var(--ink);border-radius:18px;box-shadow:6px 6px 0 var(--ink);padding:24px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row.center-row{justify-content:center}
+  .stack{display:flex;flex-direction:column;gap:10px}
+  .msg{font-size:14px;color:var(--ink-soft);min-height:1.2em}
+  .msg.bad{color:#c3321e;font-weight:600}
+  .msg.good{color:#1d8a52;font-weight:600}
+
+  /* Home (teachers) */
+  .home-title{max-width:900px;margin:18px auto 0}
+  .home-title h1{font-size:44px;margin:0 0 6px}
+  .home-title p{color:var(--ink-soft);margin:0;font-size:18px;max-width:52ch}
+  .home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;max-width:900px;margin:26px auto}
+  .home-grid .card{display:flex;flex-direction:column;gap:10px;padding:20px}
+  .home-grid h2{margin:0;font-size:22px}
+  .home-grid p{margin:0;color:var(--ink-soft);font-size:15px;flex:1}
+  .home-grid .card.lead{background:var(--sun)}
+  .home-grid .card.lead p{color:var(--ink)}
+  .home-grid .card.lead button.primary{background:var(--white)}
+
+  /* Map stage (shared) */
+  .stage-wrap{text-align:center;position:relative}
+  .stage{position:relative;display:inline-block;user-select:none;-webkit-user-select:none;line-height:0}
+  .stage img{display:block;max-width:100%;max-height:calc(100vh - 190px);-webkit-user-drag:none}
+  .layer{position:absolute;inset:0}
+  .dot{position:absolute;width:var(--d);height:var(--d);border-radius:50%;background:#fff;border:2.5px solid var(--ink);
+       transform:translate(-50%,-50%);padding:0;box-shadow:0 2px 0 var(--ink);cursor:pointer;line-height:1;transition:none}
+  .dot:hover{background:var(--sun)}
+  .dot:active{transform:translate(-50%,-50%);box-shadow:0 2px 0 var(--ink)}
+  .dot .tag{position:absolute;left:50%;top:100%;transform:translate(-50%,4px);font-size:12px;line-height:1.3;white-space:nowrap;
+            background:#fff;color:var(--ink);padding:1px 7px;border:2px solid var(--ink);border-radius:7px;pointer-events:none;font-weight:600;font-family:var(--body)}
+  .dot.unnamed{border-color:var(--tomato);border-style:dashed}
+  .dot.flash{animation:flash .4s ease-in-out 3}
+  .dot.selected{background:var(--sun)}
+  @keyframes flash{50%{transform:translate(-50%,-50%) scale(1.9);background:var(--sun)}}
+
+  /* Player dots */
+  .dot.done{cursor:default}
+  .dot.c0{background:var(--leaf)}
+  .dot.c1{background:var(--sun)}
+  .dot.c2{background:var(--tangerine)}
+  .dot.missed{background:var(--tomato)}
+  .dot.wrong{background:var(--tomato);animation:shake .35s}
+  .dot.reveal{background:var(--tomato);animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.7);box-shadow:0 0 0 7px rgba(255,90,67,.35)}}
+  @keyframes shake{25%{transform:translate(-65%,-50%)}75%{transform:translate(-35%,-50%)}}
+  .tag.bad{background:var(--tomato);color:#fff}
+  .tag.info{background:var(--ink);color:#fff}
+
+  /* Editor (teachers) */
+  .editor{display:flex;gap:22px;align-items:flex-start}
+  .canvas-col{flex:1;min-width:0}
+  .canvas-col .stage{border:3px solid var(--ink);border-radius:14px;overflow:visible;background:#fff;box-shadow:6px 6px 0 var(--ink)}
+  .canvas-col .stage img{border-radius:11px}
+  .hintbar{font-size:15px;color:var(--ink-soft);margin:0 0 12px;text-align:center}
+  .side > *{flex-shrink:0}
+  .side{width:330px;flex-shrink:0;position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;display:flex;flex-direction:column;gap:14px;padding:20px}
+  .side label{font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:4px}
+  .side h3{margin:4px 0 0;font-size:20px}
+  #ed-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+  #ed-list li{display:flex;align-items:center;gap:6px}
+  #ed-list .num{width:24px;text-align:right;color:var(--ink-soft);font-size:13px;flex-shrink:0}
+  #ed-list input{padding:5px 8px;font-size:14px}
+  #ed-list input.empty{border-color:var(--tomato);border-style:dashed}
+  #ed-list button{padding:2px 8px;font-size:13px;flex-shrink:0;border-width:2px;border-radius:8px;box-shadow:0 2px 0 var(--ink)}
+  .empty-list{font-size:14px;color:var(--ink-soft)}
+  .dropzone{border:3px dashed var(--ink);border-radius:18px;background:var(--white);padding:70px 20px;text-align:center}
+  .dropzone.over{background:#fff7d6}
+  .dropzone p{margin:0 0 16px;font-size:17px}
+  .dropzone b{font-family:var(--display);font-weight:400;font-size:28px;display:block;margin-bottom:6px}
+  .popover{position:absolute;z-index:5;background:#fff;border:3px solid var(--ink);border-radius:14px;box-shadow:5px 5px 0 var(--ink);padding:12px;width:250px;line-height:1.3;text-align:left}
+  .popover .hint{font-size:12px;color:var(--ink-soft);margin-top:8px}
+  .popover .row{margin-top:10px}
+
+  /* Player board (students) */
+  .board{max-width:1200px;margin:0 auto;background:var(--white);border:3px solid var(--ink);border-radius:22px;box-shadow:8px 8px 0 var(--ink);overflow:hidden}
+  .gamebar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:12px 16px;border-bottom:3px solid var(--ink);background:var(--mist)}
+  .meter{display:flex;align-items:center;gap:10px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .track{width:120px;height:16px;border:2.5px solid var(--ink);border-radius:99px;background:#fff;overflow:hidden}
+  .track span{display:block;height:100%;width:0;background:var(--leaf);border-right:2.5px solid var(--ink);transition:width .25s ease-out}
+  .scorechip{font-family:var(--display);font-size:22px;background:#fff;border:2.5px solid var(--ink);border-radius:10px;padding:0 10px}
+  .prompt{display:flex;align-items:center;gap:12px;font-weight:600;font-size:18px;justify-content:center;flex-wrap:wrap}
+  .target{font-family:var(--display);font-size:32px;line-height:1.15;background:var(--sun);border:3px solid var(--ink);border-radius:12px;
+          padding:2px 18px 4px;transform:rotate(-2deg);box-shadow:4px 4px 0 var(--ink);display:inline-block}
+  .target.pop{animation:pop .28s ease-out}
+  @keyframes pop{0%{transform:rotate(-2deg) scale(.8)}70%{transform:rotate(-2deg) scale(1.08)}100%{transform:rotate(-2deg) scale(1)}}
+  .gamebar .right{display:flex;gap:10px;align-items:center;justify-content:flex-end}
+  .clock{font-weight:700;font-variant-numeric:tabular-nums;font-size:17px;display:flex;align-items:center;gap:6px}
+  .play-area{padding:12px;background:var(--white)}
+  .play-area .stage img{max-height:calc(100vh - 250px)}
+  .cursor-tip{position:absolute;z-index:4;pointer-events:none;background:var(--ink);color:#fff;font-size:15px;line-height:1.3;font-family:var(--body);
+              padding:5px 11px;border-radius:9px;white-space:nowrap}
+  .cursor-tip b{color:var(--sun)}
+
+  /* Setup (students) */
+  .setup{max-width:980px;margin:20px auto;display:grid;grid-template-columns:1.15fr 1fr;gap:40px;align-items:center}
+  .postcard{background:#fff;border:3px solid var(--ink);border-radius:16px;padding:12px;transform:rotate(-2.5deg);box-shadow:8px 8px 0 var(--ink)}
+  .postcard img{display:block;width:100%;border-radius:8px}
+  .setup-text h1{font-size:48px;margin:0 0 8px}
+  .setup-text .count{font-size:19px;color:var(--ink-soft);margin:0 0 20px}
+  .check{display:flex;gap:10px;align-items:center;margin:10px 0;font-size:16px;cursor:pointer}
+  .setup-text .go{margin:26px 0 14px}
+
+  /* Results (students) */
+  .results{max-width:760px;margin:20px auto;padding:30px}
+  .results .top{display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+  .bigscore{font-family:var(--display);font-size:96px;line-height:.9;background:var(--sun);border:3px solid var(--ink);border-radius:20px;
+            padding:14px 22px 18px;transform:rotate(-3deg);box-shadow:6px 6px 0 var(--ink)}
+  .results h1{font-size:40px;margin:0 0 6px}
+  .results .sub{margin:0;font-size:17px;color:var(--ink-soft)}
+  .misses{margin:28px 0 22px}
+  .misses h2{font-size:24px;margin:0 0 10px}
+  .miss-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .miss-list li{border:2.5px solid var(--ink);border-radius:12px;padding:10px 14px;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;background:var(--mist)}
+  .miss-list .nm{font-weight:700;font-size:17px;min-width:9em}
+  .miss-list .info{color:var(--ink-soft);font-size:15px}
+  .perfect{font-family:var(--display);font-size:26px;color:#1d8a52;margin:28px 0 22px}
+
+  body.student .teacher-only{display:none !important}
+
+  /* Publishing (teachers) */
+  dialog{border:3px solid var(--ink);border-radius:18px;box-shadow:8px 8px 0 var(--ink);padding:24px;width:min(460px,92vw);color:var(--ink);font-family:var(--body)}
+  dialog::backdrop{background:rgba(29,36,64,.5)}
+  dialog h2{margin:0 0 6px;font-size:28px}
+  dialog form{display:flex;flex-direction:column;gap:12px}
+  dialog label{font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:4px}
+  dialog label.inline{flex-direction:row;align-items:center;gap:8px;font-weight:400}
+  dialog details{font-size:14px}
+  dialog details label{margin-top:8px}
+  .pub-result{background:#e3f7ec;border:2.5px solid var(--ink);border-radius:12px;padding:12px;font-size:14px;line-height:1.45}
+  .pub-result a{word-break:break-all;color:var(--ink);font-weight:700}
+  .pub-result .row{margin-top:8px}
+  .published{max-width:900px;margin:0 auto 30px}
+  .published h2{margin:0 0 2px;font-size:24px}
+  .pub-list{list-style:none;margin:12px 0 0;padding:0}
+  .pub-list li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:2px dashed var(--contour);flex-wrap:wrap}
+  .pub-list li:last-child{border-bottom:none}
+  .pub-list .nm{flex:1;min-width:180px;font-weight:700;text-transform:capitalize}
+  .pub-list a{color:var(--ink);font-weight:600}
+
+  @media (max-width:860px){
+    .editor{flex-direction:column}
+    .side{width:100%;position:static;max-height:none}
+    .setup{grid-template-columns:1fr;gap:28px}
+    .gamebar{grid-template-columns:1fr;justify-items:center}
+    .gamebar .right{justify-content:center}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition:none !important}
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg width="26" height="30" viewBox="0 0 26 30" aria-hidden="true"><path d="M13 2C7 2 2.5 6.4 2.5 12.2 2.5 19.5 13 28 13 28s10.5-8.5 10.5-15.8C23.5 6.4 19 2 13 2z" fill="#ffcf3a" stroke="#fff" stroke-width="2.5"/><circle cx="13" cy="12" r="4" fill="#1d2440"/></svg>
+    Map Dash
+  </div>
+  <div class="sub" id="top-sub">Quiz maker for teachers</div>
+</header>
+
+<main>
+  <!-- HOME (teachers) -->
+  <section id="home" class="view hidden">
+    <div class="home-title">
+      <h1>Build a map quiz your class can play</h1>
+      <p>Add a blank map, drop a dot on each place, name it, and publish. Students get a link and start clicking.</p>
+    </div>
+    <div class="home-grid">
+      <div class="card lead">
+        <h2>New quiz</h2>
+        <p>Start from any blank map image, or paste a screenshot.</p>
+        <button class="primary" id="home-new">Start a new quiz</button>
+      </div>
+      <div class="card hidden" id="home-draft-card">
+        <h2>Your draft</h2>
+        <p id="home-draft-text">Pick up where you left off.</p>
+        <button id="home-draft">Keep editing</button>
+      </div>
+      <div class="card">
+        <h2>Open a saved file</h2>
+        <p>Edit a quiz you saved to your computer (.json or .html).</p>
+        <button id="home-edit">Open file</button>
+      </div>
+      <div class="card">
+        <h2>Play from a file</h2>
+        <p>Try a saved quiz the way students will see it.</p>
+        <button id="home-play">Play file</button>
+      </div>
+    </div>
+    <p class="msg bad" id="home-msg" style="text-align:center"></p>
+    <div class="card published" id="home-pub">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div><h2>Published quizzes</h2><span class="msg" id="pub-list-msg"></span></div>
+        <div class="row"><button class="small" id="pub-refresh">Refresh</button><button class="small" id="home-pubset">Publishing settings</button></div>
+      </div>
+      <ul class="pub-list" id="pub-list"></ul>
+    </div>
+  </section>
+
+  <!-- EDITOR (teachers) -->
+  <section id="editor" class="view hidden">
+    <div class="editor">
+      <div class="canvas-col">
+        <p class="hintbar" id="ed-hint">Click the map to add a place. Drag a dot to move it. Click a dot to rename or delete it.</p>
+        <div class="dropzone" id="ed-drop">
+          <p><b>Add a blank map</b>Drag an image here, paste a screenshot (Ctrl+V), or choose a file.</p>
+          <button class="primary" id="ed-choose">Choose map image</button>
+        </div>
+        <div class="stage-wrap">
+          <div class="stage hidden" id="ed-stage">
+            <img id="ed-img" alt="Quiz map" draggable="false">
+            <div class="layer" id="ed-layer"></div>
+            <div class="popover hidden" id="ed-pop">
+              <input id="ed-pop-input" placeholder="Name this place" maxlength="80" autocomplete="off">
+              <div class="row">
+                <button class="primary small" id="ed-pop-ok">Save</button>
+                <button class="small danger" id="ed-pop-del">Delete dot</button>
+              </div>
+              <div class="hint">Press Enter to save or Esc to cancel.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="side card">
+        <label>Quiz title<input id="ed-title" maxlength="100"></label>
+        <label>Dot size <input type="range" id="ed-dotsize" min="8" max="30" step="1"></label>
+        <div class="row"><button class="small" id="ed-replace">Replace map image</button></div>
+        <h3>Places (<span id="ed-count">0</span>)</h3>
+        <ol id="ed-list"></ol>
+        <div class="msg" id="ed-msg"></div>
+        <div class="pub-result hidden" id="ed-pub-result"></div>
+        <div class="stack">
+          <button id="ed-preview">Test it as a student</button>
+          <button class="primary" id="ed-publish">Publish</button>
+          <button class="small" id="ed-export-html">Download student page (.html)</button>
+          <button class="small" id="ed-export-json">Save editable file (.json)</button>
+          <button class="small" id="ed-home">Back to start</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SETUP (students) -->
+  <section id="setup" class="view hidden">
+    <div class="setup">
+      <div class="postcard"><img id="su-map" alt="The map for this quiz"></div>
+      <div class="setup-text">
+        <h1 id="su-title"></h1>
+        <p class="count" id="su-count"></p>
+        <label class="check"><input type="checkbox" id="su-shuffle" checked> Mix up the order</label>
+        <label class="check"><input type="checkbox" id="su-labels"> Show names on the map after I find them</label>
+        <div class="go"><button class="primary big" id="su-start">Start quiz</button></div>
+        <button class="small teacher-only" id="su-back">Back</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAYER (students) -->
+  <section id="player" class="view hidden">
+    <div class="board">
+      <div class="gamebar">
+        <div class="meter">
+          <div class="track" aria-hidden="true"><span id="pl-bar"></span></div>
+          <span id="pl-progress">0 of 0</span>
+          <span class="scorechip" id="pl-score" title="Found on the first try">—</span>
+        </div>
+        <div class="prompt">Click on <span class="target" id="pl-target"></span></div>
+        <div class="right">
+          <span class="clock" id="pl-time">00:00</span>
+          <button class="small" id="pl-skip" title="Skip for now. It comes back at the end.">Skip</button>
+          <button class="small" id="pl-quit" title="Quit">Quit</button>
+        </div>
+      </div>
+      <div class="play-area">
+        <div class="stage-wrap">
+          <div class="stage" id="pl-stage">
+            <img id="pl-img" alt="Quiz map" draggable="false">
+            <div class="layer" id="pl-layer"></div>
+            <div class="cursor-tip hidden" id="pl-tip"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS (students) -->
+  <section id="results" class="view hidden">
+    <div class="card results">
+      <div class="top">
+        <div class="bigscore" id="rs-score"></div>
+        <div>
+          <h1 id="rs-head">Finished!</h1>
+          <p class="sub" id="rs-sub"></p>
+        </div>
+      </div>
+      <div id="rs-misses"></div>
+      <div class="row">
+        <button class="primary" id="rs-practice">Practice my misses</button>
+        <button id="rs-again">Play again</button>
+        <button id="rs-back">Back to start</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<dialog id="pub-dlg">
+  <form id="pub-form">
+    <div>
+      <h2>Publishing settings</h2>
+      <p class="msg" style="margin:0">Your ed tech team gives you these. You only enter them once on this computer.</p>
+    </div>
+    <label>Repository <input id="pub-repo" placeholder="your-account/map-quizzes" autocomplete="off" required></label>
+    <label>Publishing key <input id="pub-token" type="password" placeholder="github_pat_…" autocomplete="off"></label>
+    <details>
+      <summary>More settings</summary>
+      <label>Branch <input id="pub-branch" placeholder="main" autocomplete="off"></label>
+      <label>Folder for quizzes <input id="pub-folder" placeholder="quizzes" autocomplete="off"></label>
+    </details>
+    <label class="inline"><input type="checkbox" id="pub-remember" checked> Remember the key on this computer</label>
+    <div class="msg" id="pub-msg"></div>
+    <div class="row">
+      <button type="submit" class="primary" id="pub-save">Save &amp; check</button>
+      <button type="button" id="pub-cancel">Cancel</button>
+      <button type="button" class="danger" id="pub-forget">Forget key</button>
+    </div>
+  </form>
+</dialog>
+
+<input type="file" id="file-img" accept="image/*" class="hidden">
+<input type="file" id="file-quiz" accept=".json,.html,application/json,text/html" class="hidden">
+
+<!-- Quiz data is placed here when a student page is exported. Leave empty in the maker. -->
+<script id="embedded-quiz" type="application/json"></script>
+
+<script>
+(() => {
+'use strict';
+// Snapshot of this page before anything changes; used to build exported student pages.
+const PRISTINE = '<!doctype html>\n' + document.documentElement.outerHTML;
+
+const $ = s => document.querySelector(s);
+const clamp = (v, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const DRAFT_KEY = 'mapquiz-draft-v1';
+const VIEWS = ['home', 'editor', 'setup', 'player', 'results'];
+let lockedPlay = false;   // true on an exported student page
+
+function show(view) {
+  VIEWS.forEach(v => $('#' + v).classList.toggle('hidden', v !== view));
+  window.scrollTo(0, 0);
+}
+function fmtTime(ms) {
+  const s = Math.floor(ms / 1000);
+  return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+}
+function slug(s) {
+  return (s || 'quiz').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'quiz';
+}
+function shuffle(a) {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function download(name, content, type) {
+  const blob = new Blob([content], { type });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+function blankQuiz() { return { version: 1, title: 'Untitled quiz', image: null, dotSize: 16, points: [] }; }
+function normalize(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const seen = new Set();
+  const points = Array.isArray(raw.points) ? raw.points
+    .filter(p => p && isFinite(p.x) && isFinite(p.y))
+    .map(p => {
+      let id = String(p.id || uid());
+      while (seen.has(id)) id = uid();
+      seen.add(id);
+      return { id, name: String(p.name || ''), x: clamp(+p.x), y: clamp(+p.y) };
+    }) : [];
+  return {
+    version: 1,
+    title: String(raw.title || 'Untitled quiz'),
+    image: typeof raw.image === 'string' ? raw.image : null,
+    dotSize: isFinite(raw.dotSize) ? clamp(+raw.dotSize, 8, 30) : 16,
+    points,
+    publishedName: typeof raw.publishedName === 'string' ? raw.publishedName : null
+  };
+}
+function readEmbedded() {
+  const t = $('#embedded-quiz').textContent.trim();
+  if (!t) return null;
+  try { return normalize(JSON.parse(t)); } catch { return null; }
+}
+function quizFromHtml(text) {
+  const m = text.match(/<script id="embedded-quiz"[^>]*>([\s\S]*?)<\/script>/);
+  if (!m || !m[1].trim()) return null;
+  try { return normalize(JSON.parse(m[1])); } catch { return null; }
+}
+function playable(q) {
+  return q && q.image && q.points.length && q.points.every(p => p.name.trim());
+}
+
+/* ---------------- HOME ---------------- */
+let fileMode = 'edit';
+function showHome(err) {
+  $('#home-msg').textContent = err || '';
+  let draft = null;
+  try { draft = normalize(JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null')); } catch {}
+  $('#home-draft-card').classList.toggle('hidden', !draft || (!draft.image && !draft.points.length));
+  if (draft) $('#home-draft-text').textContent = `"${draft.title}" with ${draft.points.length} place${draft.points.length === 1 ? '' : 's'}.`;
+  document.title = 'Map Quiz Maker';
+  show('home');
+  loadPublishedList();
+}
+$('#home-new').onclick = () => {
+  let hasDraft = false;
+  try { hasDraft = !!localStorage.getItem(DRAFT_KEY); } catch {}
+  if (hasDraft && !confirm('Start a new quiz? Your unsaved draft will be replaced.')) return;
+  openEditor(blankQuiz());
+};
+$('#home-draft').onclick = () => {
+  try { openEditor(normalize(JSON.parse(localStorage.getItem(DRAFT_KEY)))); } catch { showHome('Could not read the draft.'); }
+};
+$('#home-edit').onclick = () => { fileMode = 'edit'; $('#file-quiz').click(); };
+$('#home-play').onclick = () => { fileMode = 'play'; $('#file-quiz').click(); };
+$('#file-quiz').onchange = e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    let q = null;
+    const text = String(r.result);
+    if (/\.html?$/i.test(f.name) || text.trimStart().startsWith('<')) q = quizFromHtml(text);
+    else { try { q = normalize(JSON.parse(text)); } catch {} }
+    if (!q) return showHome("That file doesn't look like a map quiz.");
+    if (fileMode === 'edit') openEditor(q);
+    else if (!playable(q)) showHome('That quiz is missing a map or has unnamed places. Open it in the editor first.');
+    else startSetup(q, { from: 'home' });
+  };
+  r.readAsText(f);
+};
+
+/* ---------------- EDITOR ---------------- */
+let ed = null, pop = null, drag = null, draftTimer = null;
+const edStage = $('#ed-stage'), edLayer = $('#ed-layer'), edPop = $('#ed-pop'), edInput = $('#ed-pop-input');
+
+function openEditor(q) {
+  ed = normalize(q) || blankQuiz();
+  pop = null; edPop.classList.add('hidden');
+  edMsg(''); $('#ed-pub-result').classList.add('hidden');
+  show('editor');
+  renderEditor();
+  saveDraft();
+}
+function edMsg(text, kind) {
+  const m = $('#ed-msg'); m.textContent = text; m.className = 'msg' + (kind ? ' ' + kind : '');
+}
+function renderEditor() {
+  $('#ed-title').value = ed.title;
+  $('#ed-dotsize').value = ed.dotSize;
+  edStage.style.setProperty('--d', ed.dotSize + 'px');
+  const has = !!ed.image;
+  $('#ed-drop').classList.toggle('hidden', has);
+  edStage.classList.toggle('hidden', !has);
+  $('#ed-hint').classList.toggle('hidden', !has);
+  $('#ed-replace').parentElement.classList.toggle('hidden', !has);
+  if (has && $('#ed-img').getAttribute('src') !== ed.image) $('#ed-img').src = ed.image;
+  document.title = (ed.title || 'Quiz') + ' · Editing';
+  renderEdDots(); renderEdList();
+}
+function findPt(id) { return ed.points.find(p => p.id === id); }
+function renderEdDots() {
+  edLayer.innerHTML = '';
+  ed.points.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (p.name.trim() ? '' : ' unnamed') + (pop && pop.id === p.id ? ' selected' : '');
+    d.dataset.id = p.id;
+    d.style.left = p.x * 100 + '%'; d.style.top = p.y * 100 + '%';
+    const t = document.createElement('span'); t.className = 'tag'; t.textContent = p.name.trim() || '(unnamed)';
+    d.appendChild(t);
+    d.addEventListener('pointerdown', e => {
+      e.stopPropagation(); e.preventDefault();
+      if (pop && pop.id !== p.id) closePopover(true);
+      drag = { id: p.id, sx: e.clientX, sy: e.clientY, moved: false, el: d };
+      d.setPointerCapture(e.pointerId);
+    });
+    d.addEventListener('pointermove', e => {
+      if (!drag || drag.id !== p.id) return;
+      if (!drag.moved && Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 4) return;
+      drag.moved = true;
+      const r = edStage.getBoundingClientRect();
+      p.x = clamp((e.clientX - r.left) / r.width); p.y = clamp((e.clientY - r.top) / r.height);
+      d.style.left = p.x * 100 + '%'; d.style.top = p.y * 100 + '%';
+      if (pop && pop.id === p.id) positionPopover(p);
+    });
+    d.addEventListener('pointerup', () => {
+      if (!drag || drag.id !== p.id) return;
+      const moved = drag.moved; drag = null;
+      if (moved) saveDraft(); else openPopover(p.id, false);
+    });
+    d.addEventListener('click', e => e.stopPropagation());
+    edLayer.appendChild(d);
+  });
+}
+function renderEdList() {
+  const list = $('#ed-list'); list.innerHTML = '';
+  $('#ed-count').textContent = ed.points.length;
+  if (!ed.points.length) {
+    const li = document.createElement('li'); li.className = 'empty-list';
+    li.textContent = ed.image ? 'No places yet. Click the map to add one.' : 'Add a map first.';
+    list.appendChild(li); return;
+  }
+  ed.points.forEach((p, i) => {
+    const li = document.createElement('li');
+    const n = document.createElement('span'); n.className = 'num'; n.textContent = i + 1;
+    const inp = document.createElement('input'); inp.value = p.name; inp.placeholder = '(unnamed)'; inp.maxLength = 80;
+    inp.classList.toggle('empty', !p.name.trim());
+    inp.oninput = () => {
+      p.name = inp.value; inp.classList.toggle('empty', !p.name.trim());
+      const d = edLayer.querySelector(`[data-id="${p.id}"]`);
+      if (d) { d.classList.toggle('unnamed', !p.name.trim()); d.querySelector('.tag').textContent = p.name.trim() || '(unnamed)'; }
+      saveDraftSoon();
+    };
+    const loc = document.createElement('button'); loc.textContent = '◎'; loc.title = 'Show on map';
+    loc.onclick = () => {
+      const d = edLayer.querySelector(`[data-id="${p.id}"]`);
+      if (!d) return;
+      d.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      d.classList.remove('flash'); void d.offsetWidth; d.classList.add('flash');
+    };
+    const del = document.createElement('button'); del.textContent = '✕'; del.title = 'Delete'; del.className = 'danger';
+    del.onclick = () => { removePoint(p.id); };
+    li.append(n, inp, loc, del); list.appendChild(li);
+  });
+}
+function removePoint(id) {
+  ed.points = ed.points.filter(p => p.id !== id);
+  if (pop && pop.id === id) { pop = null; edPop.classList.add('hidden'); }
+  renderEdDots(); renderEdList(); saveDraft();
+}
+function positionPopover(p) {
+  edPop.style.left = p.x * 100 + '%'; edPop.style.top = p.y * 100 + '%';
+  const tx = p.x < 0.18 ? '-10%' : p.x > 0.82 ? '-90%' : '-50%';
+  const ty = p.y > 0.7 ? `calc(-100% - ${ed.dotSize / 2 + 10}px)` : `${ed.dotSize / 2 + 10}px`;
+  edPop.style.transform = `translate(${tx}, ${ty})`;
+}
+function openPopover(id, isNew) {
+  const p = findPt(id); if (!p) return;
+  pop = { id, isNew };
+  positionPopover(p);
+  edPop.classList.remove('hidden');
+  edInput.value = p.name;
+  renderEdDots();
+  setTimeout(() => { edInput.focus(); edInput.select(); }, 0);
+}
+function closePopover(commit) {
+  if (!pop) return;
+  const p = findPt(pop.id), isNew = pop.isNew;
+  pop = null; edPop.classList.add('hidden');
+  if (p) {
+    const v = edInput.value.trim();
+    if (commit && v) p.name = v;
+    else if (isNew && !p.name.trim()) ed.points = ed.points.filter(x => x !== p);
+  }
+  renderEdDots(); renderEdList(); saveDraft();
+}
+edStage.addEventListener('click', e => {
+  if (e.target.closest('.dot, .popover')) return;
+  if (pop) closePopover(true);
+  edMsg('');
+  const r = edStage.getBoundingClientRect();
+  const p = { id: uid(), name: '', x: clamp((e.clientX - r.left) / r.width), y: clamp((e.clientY - r.top) / r.height) };
+  ed.points.push(p);
+  renderEdDots(); renderEdList();
+  openPopover(p.id, true);
+});
+edPop.addEventListener('pointerdown', e => e.stopPropagation());
+edInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); closePopover(true); }
+  else if (e.key === 'Escape') { e.preventDefault(); closePopover(false); }
+});
+$('#ed-pop-ok').onclick = () => closePopover(true);
+$('#ed-pop-del').onclick = () => { if (pop) removePoint(pop.id); };
+
+$('#ed-title').oninput = e => { ed.title = e.target.value; document.title = (ed.title || 'Quiz') + ' · Editing'; saveDraftSoon(); };
+$('#ed-dotsize').oninput = e => { ed.dotSize = +e.target.value; edStage.style.setProperty('--d', ed.dotSize + 'px'); if (pop) positionPopover(findPt(pop.id)); saveDraftSoon(); };
+
+// Map image: choose, drop, or paste
+$('#ed-choose').onclick = () => $('#file-img').click();
+$('#ed-replace').onclick = () => $('#file-img').click();
+$('#file-img').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) loadImageFile(f); };
+const drop = $('#ed-drop');
+['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) loadImageFile(f); });
+document.addEventListener('paste', e => {
+  if ($('#editor').classList.contains('hidden')) return;
+  const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+  if (!item) return;
+  e.preventDefault();
+  if (ed.image && !confirm('Replace the current map with the pasted image? Your dots will stay in the same relative spots.')) return;
+  loadImageFile(item.getAsFile());
+});
+function loadImageFile(file) {
+  if (!file || !file.type.startsWith('image/')) return edMsg('That file is not an image.', 'bad');
+  const r = new FileReader();
+  r.onload = () => {
+    const url = r.result;
+    if (file.type === 'image/svg+xml') return setImage(url);
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 2400;
+      if (img.naturalWidth <= MAX && url.length < 3e6) return setImage(url);
+      // Shrink big images so quiz files stay small.
+      const s = Math.min(1, MAX / img.naturalWidth);
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+      ctx.drawImage(img, 0, 0, c.width, c.height);
+      let out = c.toDataURL('image/png');
+      if (out.length > 3e6) out = c.toDataURL('image/jpeg', 0.9);
+      setImage(out);
+    };
+    img.onerror = () => edMsg('Could not read that image.', 'bad');
+    img.src = url;
+  };
+  r.readAsDataURL(file);
+}
+function setImage(url) {
+  const replacing = !!ed.image;
+  ed.image = url;
+  renderEditor(); saveDraft();
+  edMsg(replacing ? 'Map replaced. Dots kept their relative positions; drag any that need adjusting.' : 'Map added. Click it to place your first dot.', 'good');
+}
+
+// Drafts (autosave in this browser)
+function saveDraftSoon() { clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 400); }
+function saveDraft() {
+  clearTimeout(draftTimer);
+  if (!ed) return;
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(ed)); }
+  catch { edMsg('This map is too big to autosave in the browser. Use "Save editable file" to keep your work.', 'bad'); }
+}
+
+// Validation and export
+function validate() {
+  if (!ed.image) return 'Add a map image first.';
+  if (!ed.points.length) return 'Add at least one place.';
+  const unnamed = ed.points.filter(p => !p.name.trim()).length;
+  if (unnamed) return `${unnamed} place${unnamed > 1 ? 's need' : ' needs'} a name (red dashed outline).`;
+  const seen = new Map(), dups = new Set();
+  ed.points.forEach(p => { const k = p.name.trim().toLowerCase(); if (seen.has(k)) dups.add(p.name.trim()); seen.set(k, 1); });
+  if (dups.size) return 'These names are used twice: ' + [...dups].join(', ') + '.';
+  return null;
+}
+function cleanQuiz() {
+  return { version: 1, title: ed.title.trim() || 'Map quiz', image: ed.image, dotSize: ed.dotSize,
+           points: ed.points.map(p => ({ id: p.id, name: p.name.trim(), x: +p.x.toFixed(5), y: +p.y.toFixed(5) })) };
+}
+$('#ed-preview').onclick = () => {
+  if (pop) closePopover(true);
+  const err = validate(); if (err) return edMsg(err, 'bad');
+  startSetup(cleanQuiz(), { from: 'editor' });
+};
+$('#ed-export-json').onclick = () => {
+  if (pop) closePopover(true);
+  if (!ed.image && !ed.points.length) return edMsg('Nothing to save yet.', 'bad');
+  download(slug(ed.title) + '.json', JSON.stringify(cleanQuiz()), 'application/json');
+  edMsg('Saved. Open this file later with "Edit a saved quiz".', 'good');
+};
+$('#ed-export-html').onclick = () => {
+  if (pop) closePopover(true);
+  const err = validate(); if (err) return edMsg(err, 'bad');
+  download(slug(ed.title) + '.html', buildStudentHtml(), 'text/html');
+  edMsg('Student page downloaded.', 'good');
+};
+function buildStudentHtml() {
+  const data = JSON.stringify(cleanQuiz()).replace(/</g, '\\u003c');
+  return PRISTINE.replace(/(<script id="embedded-quiz"[^>]*>)[\s\S]*?(<\/script>)/, (m, a, b) => a + data + b);
+}
+$('#ed-home').onclick = () => { if (pop) closePopover(true); saveDraft(); showHome(); };
+
+/* ---------------- PUBLISHING (GitHub) ---------------- */
+// Settings live in this browser only. The key is never written into any page.
+const PUB_KEY = 'mapquiz-publish-v1';
+let memToken = '';
+function guessRepo() {
+  const h = location.hostname.toLowerCase();
+  if (!h.endsWith('.github.io')) return '';
+  const owner = h.split('.')[0];
+  const first = location.pathname.split('/').filter(Boolean)[0];
+  return owner + '/' + (first && !/\.html?$/i.test(first) ? first : h);
+}
+function getPub() {
+  let s = {};
+  try { s = JSON.parse(localStorage.getItem(PUB_KEY) || '{}'); } catch {}
+  return {
+    repo: (s.repo || guessRepo() || '').trim(),
+    branch: (s.branch || 'main').trim(),
+    folder: (s.folder ?? 'quizzes').trim().replace(/^\/+|\/+$/g, ''),
+    token: s.token || memToken || ''
+  };
+}
+function setPub(s, remember) {
+  memToken = s.token || '';
+  const stored = { repo: s.repo, branch: s.branch, folder: s.folder, token: remember ? s.token : '' };
+  try { localStorage.setItem(PUB_KEY, JSON.stringify(stored)); } catch {}
+}
+function pagesBase(repo) {
+  const [owner, name] = repo.split('/');
+  return name.toLowerCase() === owner.toLowerCase() + '.github.io'
+    ? `https://${name.toLowerCase()}/` : `https://${owner.toLowerCase()}.github.io/${name}/`;
+}
+const encPath = p => p.split('/').map(encodeURIComponent).join('/');
+function b64utf8(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+async function gh(path, opts = {}, token) {
+  const headers = { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  if (token) headers.Authorization = 'Bearer ' + token;
+  if (opts.body) headers['Content-Type'] = 'application/json';
+  return fetch('https://api.github.com' + path, { ...opts, headers, cache: 'no-store' });
+}
+function ghError(r) {
+  if (r.status === 401) return 'The publishing key is wrong or has expired. Ask your ed tech team for a new one.';
+  if (r.status === 403 || r.status === 404) return "This key can't publish to that repository. Check the repository name, or ask your ed tech team to check the key's permissions.";
+  if (r.status === 409 || r.status === 422) return 'GitHub rejected the update (the quiz may have just been changed elsewhere). Try again.';
+  return 'GitHub returned an error (' + r.status + '). Try again in a minute.';
+}
+
+// Settings dialog
+const dlg = $('#pub-dlg');
+let afterSettings = null;
+function openPubSettings(then) {
+  const s = getPub();
+  $('#pub-repo').value = s.repo; $('#pub-branch').value = s.branch; $('#pub-folder').value = s.folder;
+  $('#pub-token').value = s.token;
+  $('#pub-msg').textContent = ''; $('#pub-msg').className = 'msg';
+  afterSettings = then || null;
+  dlg.showModal();
+}
+$('#pub-cancel').onclick = () => { afterSettings = null; dlg.close(); };
+$('#pub-forget').onclick = () => {
+  const s = getPub(); s.token = ''; setPub(s, false);
+  $('#pub-token').value = '';
+  $('#pub-msg').textContent = 'Key removed from this computer.'; $('#pub-msg').className = 'msg good';
+};
+$('#pub-form').onsubmit = async e => {
+  e.preventDefault();
+  const repo = $('#pub-repo').value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$|\/+$/g, '');
+  const s = { repo, branch: $('#pub-branch').value.trim() || 'main',
+              folder: $('#pub-folder').value.trim().replace(/^\/+|\/+$/g, ''), token: $('#pub-token').value.trim() };
+  const m = $('#pub-msg');
+  if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) { m.textContent = 'Repository should look like account-name/repo-name.'; m.className = 'msg bad'; return; }
+  if (!s.token) { m.textContent = 'Enter the publishing key.'; m.className = 'msg bad'; return; }
+  m.textContent = 'Checking…'; m.className = 'msg';
+  try {
+    const r = await gh(`/repos/${repo}`, {}, s.token);
+    if (!r.ok) { m.textContent = ghError(r); m.className = 'msg bad'; return; }
+  } catch { m.textContent = "Couldn't reach GitHub. Check the internet connection."; m.className = 'msg bad'; return; }
+  setPub(s, $('#pub-remember').checked);
+  dlg.close();
+  const then = afterSettings; afterSettings = null;
+  if (then) then(); else loadPublishedList();
+};
+$('#home-pubset').onclick = () => openPubSettings();
+
+// Publish the quiz being edited
+$('#ed-publish').onclick = () => publish();
+async function publish() {
+  if (pop) closePopover(true);
+  const err = validate(); if (err) return edMsg(err, 'bad');
+  const s = getPub();
+  if (!s.repo || !s.token) return openPubSettings(publish);
+  let name = ed.publishedName || slug(ed.title) + '.html';
+  if (name.toLowerCase() === 'index.html') name = 'index-quiz.html';  // never overwrite the maker
+  const path = (s.folder ? s.folder + '/' : '') + name;
+  const btn = $('#ed-publish');
+  btn.disabled = true; edMsg('Publishing…'); $('#ed-pub-result').classList.add('hidden');
+  try {
+    let sha = null;
+    const g = await gh(`/repos/${s.repo}/contents/${encPath(path)}?ref=${encodeURIComponent(s.branch)}`, {}, s.token);
+    if (g.ok) {
+      sha = (await g.json()).sha;
+      if (!ed.publishedName && !confirm(`A quiz called "${name}" is already published. Replace it with this one?`)) { edMsg('Not published. Change the quiz title to publish it under a new name.'); return; }
+    } else if (g.status !== 404) { edMsg(ghError(g), 'bad'); return; }
+    const body = { message: `${sha ? 'Update' : 'Add'} quiz: ${ed.title.trim() || name}`, content: b64utf8(buildStudentHtml()), branch: s.branch };
+    if (sha) body.sha = sha;
+    const put = await gh(`/repos/${s.repo}/contents/${encPath(path)}`, { method: 'PUT', body: JSON.stringify(body) }, s.token);
+    if (!put.ok) { edMsg(ghError(put), 'bad'); return; }
+    ed.publishedName = name; saveDraft();
+    edMsg('');
+    showPubResult(pagesBase(s.repo) + encPath(path), !!sha);
+  } catch {
+    edMsg("Couldn't reach GitHub. Check the internet connection and try again.", 'bad');
+  } finally { btn.disabled = false; }
+}
+function copyText(text, btn) {
+  const done = () => { const t = btn.textContent; btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = t, 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => prompt('Copy this link:', text));
+  else prompt('Copy this link:', text);
+}
+function showPubResult(url, updated) {
+  const box = $('#ed-pub-result'); box.innerHTML = '';
+  const p = document.createElement('div');
+  p.append((updated ? 'Updated! ' : 'Published! ') + 'Share this link with students:', document.createElement('br'));
+  const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = url;
+  p.appendChild(a);
+  const note = document.createElement('div'); note.className = 'msg';
+  note.textContent = 'It can take 1–2 minutes before the link works or shows your changes.';
+  const row = document.createElement('div'); row.className = 'row';
+  const copy = document.createElement('button'); copy.className = 'small'; copy.textContent = 'Copy link';
+  copy.onclick = () => copyText(url, copy);
+  row.appendChild(copy);
+  box.append(p, note, row); box.classList.remove('hidden');
+}
+
+// List of published quizzes on the start screen
+async function loadPublishedList() {
+  const s = getPub(), list = $('#pub-list'), m = $('#pub-list-msg');
+  list.innerHTML = '';
+  if (!s.repo) { m.textContent = 'Not set up yet. Click "Publishing settings" to connect your quiz website.'; return; }
+  m.textContent = 'Loading…';
+  try {
+    const r = await gh(`/repos/${s.repo}/contents/${encPath(s.folder)}?ref=${encodeURIComponent(s.branch)}`, {}, s.token);
+    if (r.status === 404) { m.textContent = 'Nothing published yet.'; return; }
+    if (!r.ok) { m.textContent = ghError(r); return; }
+    const files = (await r.json()).filter(f => f.type === 'file' && /\.html$/i.test(f.name) && f.name.toLowerCase() !== 'index.html');
+    m.textContent = files.length ? `${files.length} quiz${files.length === 1 ? '' : 'zes'} on ${s.repo}` : 'Nothing published yet.';
+    const base = pagesBase(s.repo);
+    files.forEach(f => {
+      const url = base + encPath(f.path);
+      const li = document.createElement('li');
+      const nm = document.createElement('span'); nm.className = 'nm';
+      nm.textContent = f.name.replace(/\.html$/i, '').replace(/-/g, ' ');
+      const open = document.createElement('a'); open.href = url; open.target = '_blank'; open.rel = 'noopener'; open.textContent = 'Open';
+      const copy = document.createElement('button'); copy.className = 'small'; copy.textContent = 'Copy link';
+      copy.onclick = () => copyText(url, copy);
+      const edit = document.createElement('button'); edit.className = 'small'; edit.textContent = 'Edit';
+      edit.onclick = async () => {
+        edit.disabled = true;
+        try {
+          const rr = await fetch(f.download_url, { cache: 'no-store' });
+          const q = rr.ok ? quizFromHtml(await rr.text()) : null;
+          if (!q) { m.textContent = "Couldn't open that quiz for editing."; return; }
+          q.publishedName = f.name;
+          openEditor(q);
+        } catch { m.textContent = "Couldn't reach GitHub."; }
+        finally { edit.disabled = false; }
+      };
+      const del = document.createElement('button'); del.className = 'small danger'; del.textContent = 'Unpublish';
+      del.onclick = async () => {
+        const cur = getPub();
+        if (!cur.token) return openPubSettings(loadPublishedList);
+        if (!confirm(`Unpublish "${nm.textContent}"? The student link will stop working.`)) return;
+        const rr = await gh(`/repos/${cur.repo}/contents/${encPath(f.path)}`, { method: 'DELETE',
+          body: JSON.stringify({ message: 'Remove quiz: ' + f.name, sha: f.sha, branch: cur.branch }) }, cur.token);
+        if (!rr.ok) { m.textContent = ghError(rr); return; }
+        loadPublishedList();
+      };
+      li.append(nm, open, copy, edit, del); list.appendChild(li);
+    });
+  } catch { m.textContent = "Couldn't reach GitHub to list published quizzes."; }
+}
+$('#pub-refresh').onclick = () => loadPublishedList();
+
+/* ---------------- SETUP / PLAYER ---------------- */
+let currentQuiz = null, setupCtx = {}, game = null, timerId = null;
+const plStage = $('#pl-stage'), plLayer = $('#pl-layer'), tip = $('#pl-tip');
+
+function startSetup(q, ctx) {
+  currentQuiz = q; setupCtx = ctx || {};
+  $('#su-title').textContent = q.title;
+  $('#su-count').textContent = `Find ${q.points.length} place${q.points.length === 1 ? '' : 's'} on the map. You get three tries at each one.`;
+  $('#su-map').src = q.image;
+  $('#su-back').textContent = setupCtx.from === 'editor' ? 'Back to editor' : 'Back';
+  $('#top-sub').textContent = lockedPlay ? '' : 'Quiz maker for teachers';
+  document.title = q.title;
+  show('setup');
+}
+$('#su-back').onclick = () => setupCtx.from === 'editor' ? (show('editor'), renderEditor()) : showHome();
+$('#su-start').onclick = () => startGame(null);
+
+function startGame(onlyIds) {
+  const q = currentQuiz;
+  const pool = onlyIds ? q.points.filter(p => onlyIds.includes(p.id)) : q.points.slice();
+  const order = $('#su-shuffle').checked ? shuffle(pool) : pool;
+  game = {
+    queue: order.map(p => p.id), order: order.map(p => p.id),
+    byId: Object.fromEntries(q.points.map(p => [p.id, p])),
+    total: order.length, current: null, tries: {}, wrong: {}, done: new Set(),
+    firstTry: 0, answered: 0, start: Date.now(), labels: $('#su-labels').checked, onlyIds
+  };
+  $('#pl-img').src = q.image;
+  plStage.style.setProperty('--d', q.dotSize + 'px');
+  plLayer.innerHTML = '';
+  q.points.forEach(p => {
+    const b = document.createElement('button');
+    b.className = 'dot'; b.type = 'button'; b.dataset.id = p.id;
+    b.style.left = p.x * 100 + '%'; b.style.top = p.y * 100 + '%';
+    b.addEventListener('click', e => { e.stopPropagation(); onDot(p.id, b); });
+    plLayer.appendChild(b);
+  });
+  clearInterval(timerId);
+  timerId = setInterval(() => { $('#pl-time').textContent = fmtTime(Date.now() - game.start); }, 500);
+  $('#pl-time').textContent = '00:00';
+  show('player');
+  next();
+}
+function dotEl(id) { return plLayer.querySelector(`[data-id="${id}"]`); }
+function next() {
+  if (!game.queue.length) return finish();
+  game.current = game.queue.shift();
+  const name = game.byId[game.current].name;
+  const tg = $('#pl-target');
+  tg.textContent = name;
+  tg.classList.remove('pop'); void tg.offsetWidth; tg.classList.add('pop');
+  tip.innerHTML = ''; tip.append('Click on ', Object.assign(document.createElement('b'), { textContent: name }));
+  if ((game.tries[game.current] || 0) >= 3) dotEl(game.current).classList.add('reveal');
+  updateBar();
+}
+function updateBar() {
+  $('#pl-progress').textContent = `${game.answered} of ${game.total}`;
+  $('#pl-bar').style.width = (game.answered / game.total * 100) + '%';
+  $('#pl-score').textContent = game.answered ? Math.round(game.firstTry / game.answered * 100) + '%' : '—';
+  $('#pl-skip').disabled = !game.queue.length;
+}
+function showTag(btn, text, kind, ms) {
+  btn.querySelectorAll('.tag.temp').forEach(t => t.remove());
+  const t = document.createElement('span'); t.className = 'tag temp ' + kind; t.textContent = text;
+  btn.appendChild(t);
+  if (ms) setTimeout(() => t.remove(), ms);
+}
+function onDot(id, btn) {
+  if (!game || !game.current) return;
+  const name = game.byId[id].name;
+  if (game.done.has(id)) { if (!game.labels) showTag(btn, name, 'info', 1200); return; }
+  const cur = game.current;
+  if (id === cur) {
+    const a = game.tries[cur] || 0;
+    btn.classList.remove('reveal');
+    btn.classList.add('done', a === 0 ? 'c0' : a === 1 ? 'c1' : a === 2 ? 'c2' : 'missed');
+    game.done.add(cur); game.answered++; if (a === 0) game.firstTry++;
+    if (game.labels) { const t = document.createElement('span'); t.className = 'tag'; t.textContent = name; btn.appendChild(t); }
+    next();
+  } else {
+    game.tries[cur] = (game.tries[cur] || 0) + 1;
+    (game.wrong[cur] = game.wrong[cur] || []).push(name);
+    btn.classList.add('wrong'); setTimeout(() => btn.classList.remove('wrong'), 500);
+    showTag(btn, "That's " + name, 'bad', 1400);
+    if (game.tries[cur] >= 3) dotEl(cur).classList.add('reveal');
+    updateBar();
+  }
+}
+$('#pl-skip').onclick = () => {
+  if (!game || !game.queue.length) return;
+  dotEl(game.current).classList.remove('reveal');
+  game.queue.push(game.current);
+  next();
+};
+$('#pl-quit').onclick = () => {
+  if (game && game.answered < game.total && !confirm('Quit this quiz? Your progress will be lost.')) return;
+  clearInterval(timerId); game = null; show('setup');
+};
+plStage.addEventListener('pointermove', e => {
+  if (!game || !game.current) return;
+  const r = plStage.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  tip.classList.remove('hidden');
+  const flip = x > r.width - 260;
+  tip.style.left = (flip ? x - 14 : x + 16) + 'px'; tip.style.top = (y + 16) + 'px';
+  tip.style.transform = flip ? 'translateX(-100%)' : 'none';
+});
+plStage.addEventListener('pointerleave', () => tip.classList.add('hidden'));
+
+function finish() {
+  clearInterval(timerId);
+  tip.classList.add('hidden');
+  const elapsed = Date.now() - game.start;
+  game.current = null;
+  const pct = Math.round(game.firstTry / game.total * 100);
+  $('#rs-head').textContent = pct === 100 ? 'Perfect score!' : pct >= 80 ? 'Nice work!' : pct >= 50 ? 'Getting there!' : 'Keep practicing!';
+  $('#rs-score').textContent = pct + '%';
+  $('#rs-sub').textContent = `You found ${game.firstTry} of ${game.total} on the first try in ${fmtTime(elapsed)}.`;
+  const misses = game.order.filter(id => game.tries[id]).sort((a, b) => game.tries[b] - game.tries[a]);
+  const box = $('#rs-misses'); box.innerHTML = '';
+  if (!misses.length) {
+    box.innerHTML = '<p class="perfect">No misses. You nailed every place!</p>';
+  } else {
+    const wrap = document.createElement('div'); wrap.className = 'misses';
+    const h = document.createElement('h2'); h.textContent = `Places to review (${misses.length})`;
+    const ul = document.createElement('ul'); ul.className = 'miss-list';
+    misses.forEach(id => {
+      const li = document.createElement('li');
+      const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = game.byId[id].name;
+      const info = document.createElement('span'); info.className = 'info';
+      const n = game.tries[id];
+      info.textContent = `${n} wrong click${n === 1 ? '' : 's'}. You picked ${game.wrong[id].join(', ')}.`;
+      li.append(nm, info); ul.appendChild(li);
+    });
+    wrap.append(h, ul); box.appendChild(wrap);
+  }
+  $('#rs-practice').classList.toggle('hidden', !misses.length);
+  $('#rs-again').classList.toggle('primary', !misses.length);
+  $('#rs-practice').onclick = () => startGame(misses);
+  $('#rs-again').onclick = () => startGame(game.onlyIds);
+  $('#rs-again').textContent = game.onlyIds ? 'Practice these again' : 'Play again';
+  show('results');
+}
+$('#rs-back').onclick = () => show('setup');
+
+/* ---------------- START ---------------- */
+const params = new URLSearchParams(location.search);
+const embedded = readEmbedded();
+if (embedded && params.has('edit')) {
+  openEditor(embedded);
+} else if (embedded) {
+  lockedPlay = true; document.body.classList.add('student');
+  startSetup(embedded, { from: 'student' });
+} else if (params.get('quiz')) {
+  fetch(params.get('quiz')).then(r => { if (!r.ok) throw 0; return r.json(); })
+    .then(j => { const q = normalize(j); if (!playable(q)) throw 0; startSetup(q, { from: 'home' }); })
+    .catch(() => showHome('Could not load that quiz file.'));
+} else {
+  showHome();
+}
+})();
+</script>
+</body>
+</html>
