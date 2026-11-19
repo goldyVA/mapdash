@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Map Dash</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><clipPath id='c'><circle cx='16' cy='16' r='13'/></clipPath></defs><circle cx='16' cy='16' r='13' fill='%233fb6c9'/><g clip-path='url(%23c)' fill='%2334c27a' stroke='%231d2440' stroke-width='1.5' stroke-linejoin='round'><path d='M3 8c4-2 8-1 10 2s-1 5 1 7 1 6-2 8-6 1-9-2z'/><path d='M18 5c4 0 8 2 10 6s0 6-3 5-4 2-3 5-2 5-4 4-1-5-3-7-2-6 0-9z'/></g><circle cx='16' cy='16' r='13' fill='none' stroke='%231d2440' stroke-width='3'/><path d='M22 3l1.2 2.6 2.8.4-2 2 .5 2.8-2.5-1.3-2.5 1.3.5-2.8-2-2 2.8-.4z' fill='%23ffcf3a' stroke='%231d2440' stroke-width='1'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Lilita+One&display=swap" rel="stylesheet">
@@ -60,7 +61,7 @@
   .home-title{max-width:900px;margin:18px auto 0}
   .home-title h1{font-size:44px;margin:0 0 6px}
   .home-title p{color:var(--ink-soft);margin:0;font-size:18px;max-width:52ch}
-  .home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;max-width:900px;margin:26px auto}
+  .home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:900px;margin:26px auto}
   .home-grid .card{display:flex;flex-direction:column;gap:10px;padding:20px}
   .home-grid h2{margin:0;font-size:22px}
   .home-grid p{margin:0;color:var(--ink-soft);font-size:15px;flex:1}
@@ -106,6 +107,20 @@
   .side > *{flex-shrink:0}
   .side{width:330px;flex-shrink:0;position:sticky;top:14px;max-height:calc(100vh - 28px);overflow:auto;display:flex;flex-direction:column;gap:14px;padding:20px}
   .side label{font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:4px}
+  .side label.check{flex-direction:row;align-items:center;gap:8px;font-weight:400;margin:0;font-size:14px}
+  .opts{border:2px solid var(--ink);border-radius:12px;padding:8px 12px 10px;margin:0;display:flex;flex-direction:column;gap:8px}
+  .opts legend{font-weight:600;font-size:14px;padding:0 4px}
+  .opts label.check{align-items:flex-start}
+  .opts small{display:block;color:var(--ink-soft);font-size:12.5px;line-height:1.3}
+  input[type=radio]{width:18px;height:18px;accent-color:var(--ink);margin:1px 0 0;flex-shrink:0}
+  #editor[data-mode=type] .click-only, #editor[data-mode=click] .type-only{display:none !important}
+  .popover.answer{width:260px;z-index:6}
+  .popover.answer .row{align-items:center;margin-top:8px}
+  .popover.answer .msg{font-size:13px;line-height:1.25;flex:1}
+  .popover.answer.shake{animation:boxshake .3s}
+  @keyframes boxshake{25%{margin-left:-6px}75%{margin-left:6px}}
+  .dot.selected{background:var(--sun)}
+  .tag.above{top:auto;bottom:100%;transform:translate(-50%,-6px);z-index:2}
   .side h3{margin:4px 0 0;font-size:20px}
   #ed-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
   #ed-list li{display:flex;align-items:center;gap:6px}
@@ -187,8 +202,21 @@
   .pub-list li:last-child{border-bottom:none}
   .pub-list .nm{flex:1;min-width:180px;font-weight:700;text-transform:capitalize}
   .pub-list a{color:var(--ink);font-weight:600}
+  .pub-list li.group{border-bottom:none;padding:18px 0 2px;gap:10px;align-items:baseline}
+  .pub-list li.group:first-child{padding-top:4px}
+  .pub-list li.group h3{margin:0;font-size:20px}
+  .pub-list li.msg{border-bottom:none;padding:4px 0 10px}
+  select{font:inherit;padding:7px 10px;border:2px solid var(--ink);border-radius:10px;background:#fff;color:var(--ink);width:100%;cursor:pointer}
+  select:focus-visible{outline:3px solid var(--sea);outline-offset:2px}
+  select.needs{border-style:dashed;border-color:var(--tomato)}
+  .teacher-box{display:flex;flex-direction:column;gap:8px;background:var(--mist);border:2px solid var(--ink);border-radius:12px;padding:12px}
+  .teacher-box label{font-size:14px}
+  .add-teacher{display:flex;flex-direction:column;gap:8px}
+  .filter{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+  .filter select{width:auto;padding:3px 8px;font-size:14px}
 
   @media (max-width:860px){
+    .home-grid{grid-template-columns:1fr}
     .editor{flex-direction:column}
     .side{width:100%;position:static;max-height:none}
     .setup{grid-template-columns:1fr;gap:28px}
@@ -219,7 +247,7 @@
     <div class="home-grid">
       <div class="card lead">
         <h2>New quiz</h2>
-        <p>Start from any blank map image, or paste a screenshot.</p>
+        <p>Start from any blank map image, or paste a screenshot. To change a quiz you already published, use Edit in the list below.</p>
         <button class="primary" id="home-new">Start a new quiz</button>
       </div>
       <div class="card hidden" id="home-draft-card">
@@ -227,22 +255,14 @@
         <p id="home-draft-text">Pick up where you left off.</p>
         <button id="home-draft">Keep editing</button>
       </div>
-      <div class="card">
-        <h2>Open a saved file</h2>
-        <p>Edit a quiz you saved to your computer (.json or .html).</p>
-        <button id="home-edit">Open file</button>
-      </div>
-      <div class="card">
-        <h2>Play from a file</h2>
-        <p>Try a saved quiz the way students will see it.</p>
-        <button id="home-play">Play file</button>
-      </div>
     </div>
     <p class="msg bad" id="home-msg" style="text-align:center"></p>
     <div class="card published" id="home-pub">
       <div class="row" style="justify-content:space-between;align-items:center">
         <div><h2>Published quizzes</h2><span class="msg" id="pub-list-msg"></span></div>
-        <div class="row"><button class="small" id="pub-refresh">Refresh</button><button class="small" id="home-pubset">Publishing settings</button></div>
+        <div class="row" style="align-items:center">
+          <label class="filter hidden" id="pub-filter-wrap">Show <select id="pub-filter"></select></label>
+          <button class="small" id="pub-refresh">Refresh</button><button class="small" id="home-pubset">Publishing settings</button></div>
       </div>
       <ul class="pub-list" id="pub-list"></ul>
     </div>
@@ -275,16 +295,37 @@
       <aside class="side card">
         <label>Quiz title<input id="ed-title" maxlength="100"></label>
         <label>Dot size <input type="range" id="ed-dotsize" min="8" max="30" step="1"></label>
+        <fieldset class="opts">
+          <legend>Quiz type</legend>
+          <label class="check"><input type="radio" name="ed-mode" value="click" id="ed-mode-click"> <span>Click the place<small>Students see a name and click its dot.</small></span></label>
+          <label class="check"><input type="radio" name="ed-mode" value="type" id="ed-mode-type"> <span>Type the name<small>Students click a dot and type what it is.</small></span></label>
+        </fieldset>
+        <fieldset class="opts">
+          <legend>When students play</legend>
+          <label class="check click-only"><input type="checkbox" id="ed-shuffle"> Mix up the order</label>
+          <label class="check click-only"><input type="checkbox" id="ed-shownames"> Show names on the map after they're found</label>
+          <label class="check type-only"><input type="checkbox" id="ed-fuzzy"> Accept close spellings</label>
+        </fieldset>
         <div class="row"><button class="small" id="ed-replace">Replace map image</button></div>
         <h3>Places (<span id="ed-count">0</span>)</h3>
         <ol id="ed-list"></ol>
+        <div class="teacher-box hidden" id="ed-teacher-box">
+          <label>Teacher <select id="ed-teacher"></select></label>
+          <div class="add-teacher hidden" id="ed-addteacher">
+            <input id="ed-newteacher" placeholder="Name students know, like Ms. Rivera" maxlength="40" autocomplete="off">
+            <div class="row">
+              <button class="small primary" id="ed-addteacher-btn">Add teacher</button>
+              <button class="small" id="ed-addteacher-cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
         <div class="msg" id="ed-msg"></div>
         <div class="pub-result hidden" id="ed-pub-result"></div>
         <div class="stack">
           <button id="ed-preview">Test it as a student</button>
+          <button id="ed-worksheet">Printable worksheet (PDF)</button>
           <button class="primary" id="ed-publish">Publish</button>
           <button class="small" id="ed-export-html">Download student page (.html)</button>
-          <button class="small" id="ed-export-json">Save editable file (.json)</button>
           <button class="small" id="ed-home">Back to start</button>
         </div>
       </aside>
@@ -298,8 +339,6 @@
       <div class="setup-text">
         <h1 id="su-title"></h1>
         <p class="count" id="su-count"></p>
-        <label class="check"><input type="checkbox" id="su-shuffle" checked> Mix up the order</label>
-        <label class="check"><input type="checkbox" id="su-labels"> Show names on the map after I find them</label>
         <div class="go"><button class="primary big" id="su-start">Start quiz</button></div>
         <button class="small teacher-only" id="su-back">Back</button>
       </div>
@@ -315,7 +354,7 @@
           <span id="pl-progress">0 of 0</span>
           <span class="scorechip" id="pl-score" title="Found on the first try">—</span>
         </div>
-        <div class="prompt">Click on <span class="target" id="pl-target"></span></div>
+        <div class="prompt"><span id="pl-lead">Click on</span> <span class="target" id="pl-target"></span></div>
         <div class="right">
           <span class="clock" id="pl-time">00:00</span>
           <button class="small" id="pl-skip" title="Skip for now. It comes back at the end.">Skip</button>
@@ -328,6 +367,10 @@
             <img id="pl-img" alt="Quiz map" draggable="false">
             <div class="layer" id="pl-layer"></div>
             <div class="cursor-tip hidden" id="pl-tip"></div>
+            <form class="popover answer hidden" id="pl-ans" autocomplete="off">
+              <input id="pl-ans-input" placeholder="Type the name" maxlength="80" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Name of this place">
+              <div class="row"><button class="small primary" type="submit">Check</button><span class="msg" id="pl-ans-msg"></span></div>
+            </form>
           </div>
         </div>
       </div>
@@ -354,6 +397,21 @@
   </section>
 </main>
 
+<dialog id="ws-dlg">
+  <form id="ws-form">
+    <div>
+      <h2>Printable worksheet</h2>
+      <p class="msg" style="margin:0">Page 1 is the map with numbers and blanks. Page 2 is the answer key. The numbers are shuffled each time, so you can print different versions.</p>
+    </div>
+    <label class="inline"><input type="checkbox" id="ws-bank"> Include a word bank</label>
+    <p class="msg" style="margin:0">In the print window, choose <b>Save as PDF</b> to download it, or pick a printer.</p>
+    <div class="row">
+      <button type="submit" class="primary">Make worksheet</button>
+      <button type="button" id="ws-cancel">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog id="pub-dlg">
   <form id="pub-form">
     <div>
@@ -378,7 +436,6 @@
 </dialog>
 
 <input type="file" id="file-img" accept="image/*" class="hidden">
-<input type="file" id="file-quiz" accept=".json,.html,application/json,text/html" class="hidden">
 
 <!-- Quiz data is placed here when a student page is exported. Leave empty in the maker. -->
 <script id="embedded-quiz" type="application/json"></script>
@@ -436,8 +493,14 @@ function normalize(raw) {
     title: String(raw.title || 'Untitled quiz'),
     image: typeof raw.image === 'string' ? raw.image : null,
     dotSize: isFinite(raw.dotSize) ? clamp(+raw.dotSize, 8, 30) : 16,
+    shuffle: raw.shuffle !== false,
+    showNames: raw.showNames === true,
+    mode: raw.mode === 'type' ? 'type' : 'click',
+    fuzzy: raw.fuzzy !== false,
     points,
-    publishedName: typeof raw.publishedName === 'string' ? raw.publishedName : null
+    publishedPath: typeof raw.publishedPath === 'string' ? raw.publishedPath
+      : typeof raw.publishedName === 'string' ? 'quizzes/' + raw.publishedName : null,
+    teacher: typeof raw.teacher === 'string' ? raw.teacher : null
   };
 }
 function readEmbedded() {
@@ -450,12 +513,8 @@ function quizFromHtml(text) {
   if (!m || !m[1].trim()) return null;
   try { return normalize(JSON.parse(m[1])); } catch { return null; }
 }
-function playable(q) {
-  return q && q.image && q.points.length && q.points.every(p => p.name.trim());
-}
 
 /* ---------------- HOME ---------------- */
-let fileMode = 'edit';
 function showHome(err) {
   $('#home-msg').textContent = err || '';
   let draft = null;
@@ -475,36 +534,20 @@ $('#home-new').onclick = () => {
 $('#home-draft').onclick = () => {
   try { openEditor(normalize(JSON.parse(localStorage.getItem(DRAFT_KEY)))); } catch { showHome('Could not read the draft.'); }
 };
-$('#home-edit').onclick = () => { fileMode = 'edit'; $('#file-quiz').click(); };
-$('#home-play').onclick = () => { fileMode = 'play'; $('#file-quiz').click(); };
-$('#file-quiz').onchange = e => {
-  const f = e.target.files[0]; e.target.value = '';
-  if (!f) return;
-  const r = new FileReader();
-  r.onload = () => {
-    let q = null;
-    const text = String(r.result);
-    if (/\.html?$/i.test(f.name) || text.trimStart().startsWith('<')) q = quizFromHtml(text);
-    else { try { q = normalize(JSON.parse(text)); } catch {} }
-    if (!q) return showHome("That file doesn't look like a map quiz.");
-    if (fileMode === 'edit') openEditor(q);
-    else if (!playable(q)) showHome('That quiz is missing a map or has unnamed places. Open it in the editor first.');
-    else startSetup(q, { from: 'home' });
-  };
-  r.readAsText(f);
-};
 
 /* ---------------- EDITOR ---------------- */
 let ed = null, pop = null, drag = null, draftTimer = null;
 const edStage = $('#ed-stage'), edLayer = $('#ed-layer'), edPop = $('#ed-pop'), edInput = $('#ed-pop-input');
 
 function openEditor(q) {
-  ed = normalize(q) || blankQuiz();
+  ed = normalize(q) || normalize(blankQuiz());
+  if (ed.teacher === null) ed.teacher = lsGet(TEACHER_KEY);
   pop = null; edPop.classList.add('hidden');
   edMsg(''); $('#ed-pub-result').classList.add('hidden');
   show('editor');
   renderEditor();
   saveDraft();
+  prepTeacherPicker();
 }
 function edMsg(text, kind) {
   const m = $('#ed-msg'); m.textContent = text; m.className = 'msg' + (kind ? ' ' + kind : '');
@@ -512,6 +555,11 @@ function edMsg(text, kind) {
 function renderEditor() {
   $('#ed-title').value = ed.title;
   $('#ed-dotsize').value = ed.dotSize;
+  $('#ed-shuffle').checked = ed.shuffle;
+  $('#ed-shownames').checked = ed.showNames;
+  $('#ed-fuzzy').checked = ed.fuzzy;
+  $('#ed-mode-' + ed.mode).checked = true;
+  $('#editor').dataset.mode = ed.mode;
   edStage.style.setProperty('--d', ed.dotSize + 'px');
   const has = !!ed.image;
   $('#ed-drop').classList.toggle('hidden', has);
@@ -637,6 +685,12 @@ $('#ed-pop-ok').onclick = () => closePopover(true);
 $('#ed-pop-del').onclick = () => { if (pop) removePoint(pop.id); };
 
 $('#ed-title').oninput = e => { ed.title = e.target.value; document.title = (ed.title || 'Quiz') + ' · Editing'; saveDraftSoon(); };
+$('#ed-shuffle').onchange = e => { ed.shuffle = e.target.checked; saveDraft(); };
+$('#ed-shownames').onchange = e => { ed.showNames = e.target.checked; saveDraft(); };
+$('#ed-fuzzy').onchange = e => { ed.fuzzy = e.target.checked; saveDraft(); };
+document.querySelectorAll('input[name=ed-mode]').forEach(r => r.onchange = () => {
+  ed.mode = r.value; $('#editor').dataset.mode = ed.mode; saveDraft();
+});
 $('#ed-dotsize').oninput = e => { ed.dotSize = +e.target.value; edStage.style.setProperty('--d', ed.dotSize + 'px'); if (pop) positionPopover(findPt(pop.id)); saveDraftSoon(); };
 
 // Map image: choose, drop, or paste
@@ -708,19 +762,13 @@ function validate() {
   return null;
 }
 function cleanQuiz() {
-  return { version: 1, title: ed.title.trim() || 'Map quiz', image: ed.image, dotSize: ed.dotSize,
+  return { version: 1, title: ed.title.trim() || 'Map quiz', image: ed.image, dotSize: ed.dotSize, shuffle: ed.shuffle, showNames: ed.showNames, mode: ed.mode, fuzzy: ed.fuzzy,
            points: ed.points.map(p => ({ id: p.id, name: p.name.trim(), x: +p.x.toFixed(5), y: +p.y.toFixed(5) })) };
 }
 $('#ed-preview').onclick = () => {
   if (pop) closePopover(true);
   const err = validate(); if (err) return edMsg(err, 'bad');
   startSetup(cleanQuiz(), { from: 'editor' });
-};
-$('#ed-export-json').onclick = () => {
-  if (pop) closePopover(true);
-  if (!ed.image && !ed.points.length) return edMsg('Nothing to save yet.', 'bad');
-  download(slug(ed.title) + '.json', JSON.stringify(cleanQuiz()), 'application/json');
-  edMsg('Saved. Open this file later with "Edit a saved quiz".', 'good');
 };
 $('#ed-export-html').onclick = () => {
   if (pop) closePopover(true);
@@ -773,7 +821,8 @@ function b64utf8(str) {
   return btoa(bin);
 }
 async function gh(path, opts = {}, token) {
-  const headers = { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+  const { accept, ...rest } = opts; opts = rest;
+  const headers = { 'Accept': accept || 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
   if (token) headers.Authorization = 'Bearer ' + token;
   if (opts.body) headers['Content-Type'] = 'application/json';
   return fetch('https://api.github.com' + path, { ...opts, headers, cache: 'no-store' });
@@ -801,6 +850,8 @@ $('#pub-forget').onclick = () => {
   const s = getPub(); s.token = ''; setPub(s, false);
   $('#pub-token').value = '';
   $('#pub-msg').textContent = 'Key removed from this computer.'; $('#pub-msg').className = 'msg good';
+  if (!$('#home').classList.contains('hidden')) loadPublishedList();
+  renderTeacherPicker();
 };
 $('#pub-form').onsubmit = async e => {
   e.preventDefault();
@@ -816,38 +867,197 @@ $('#pub-form').onsubmit = async e => {
     if (!r.ok) { m.textContent = ghError(r); m.className = 'msg bad'; return; }
   } catch { m.textContent = "Couldn't reach GitHub. Check the internet connection."; m.className = 'msg bad'; return; }
   setPub(s, $('#pub-remember').checked);
+  teachers = null;
   dlg.close();
+  if (!$('#editor').classList.contains('hidden')) prepTeacherPicker();
   const then = afterSettings; afterSettings = null;
   if (then) then(); else loadPublishedList();
 };
 $('#home-pubset').onclick = () => openPubSettings();
 
-// Publish the quiz being edited
+// ---- Teachers ----
+// Each teacher gets a folder inside the quiz folder (quizzes/ms-rivera/...).
+// Display names live in quizzes/teachers.json; folders made by hand on GitHub also show up.
+const TEACHER_KEY = 'mapquiz-teacher', FILTER_KEY = 'mapquiz-listfilter';
+let teachers = null;   // [{ name, folder }]
+const lsGet = k => { try { return localStorage.getItem(k) || ''; } catch { return ''; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+const quizRoot = s => s.folder ? s.folder + '/' : '';
+const folderFor = name => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+const titleize = f => f.split('-').filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+function teacherName(folder) {
+  const t = (teachers || []).find(t => t.folder === folder);
+  return t ? t.name : titleize(folder);
+}
+function decodeB64(c) {
+  const bin = atob((c || '').replace(/\s/g, ''));
+  return new TextDecoder().decode(Uint8Array.from(bin, ch => ch.charCodeAt(0)));
+}
+async function readTeachersFile(s) {
+  const r = await gh(`/repos/${s.repo}/contents/${encPath(quizRoot(s) + 'teachers.json')}?ref=${encodeURIComponent(s.branch)}`, {}, s.token);
+  if (r.status === 404) return { list: [], sha: null };
+  if (!r.ok) throw r;
+  const j = await r.json();
+  let list = [];
+  try { list = JSON.parse(decodeB64(j.content)); } catch {}
+  if (!Array.isArray(list)) list = [];
+  list = list.filter(t => t && t.name && t.folder).map(t => ({ name: String(t.name), folder: String(t.folder) }));
+  return { list, sha: j.sha };
+}
+// Every published quiz in one request: [{ path, sha, name, teacher }]. teacher is '' for unsorted quizzes.
+async function readQuizTree(s) {
+  const r = await gh(`/repos/${s.repo}/git/trees/${encodeURIComponent(s.branch)}?recursive=1`, {}, s.token);
+  if (r.status === 404 || r.status === 409) return [];
+  if (!r.ok) throw r;
+  const root = quizRoot(s);
+  return ((await r.json()).tree || [])
+    .filter(e => e.type === 'blob' && e.path.startsWith(root) && /\.html$/i.test(e.path))
+    .map(e => {
+      const parts = e.path.slice(root.length).split('/');
+      const name = parts[parts.length - 1];
+      if (parts.length > 2 || name.toLowerCase() === 'index.html') return null;
+      return { path: e.path, sha: e.sha, name, teacher: parts.length === 2 ? parts[0] : '' };
+    })
+    .filter(Boolean);
+}
+async function loadTeachers(s, quizzes) {
+  const { list } = await readTeachersFile(s);
+  const seen = new Set(list.map(t => t.folder));
+  quizzes.forEach(q => {
+    if (q.teacher && !seen.has(q.teacher)) { seen.add(q.teacher); list.push({ name: titleize(q.teacher), folder: q.teacher }); }
+  });
+  list.sort((a, b) => a.name.localeCompare(b.name));
+  teachers = list;
+  return list;
+}
+async function ensureTeachers(s, force) {
+  if (teachers && !force) return teachers;
+  return loadTeachers(s, await readQuizTree(s));
+}
+
+// Teacher picker in the editor (only shown once a key is entered)
+function renderTeacherPicker() {
+  if (!ed) return;
+  const s = getPub(), box = $('#ed-teacher-box'), sel = $('#ed-teacher');
+  const on = !!(s.repo && s.token);
+  box.classList.toggle('hidden', !on);
+  if (!on) return;
+  sel.innerHTML = '';
+  sel.append(new Option(teachers ? 'Choose your name' : 'Loading names…', ''));
+  (teachers || []).forEach(t => sel.append(new Option(t.name, t.folder)));
+  if (teachers) sel.append(new Option('+ Add a new teacher', '__add'));
+  sel.value = (teachers || []).some(t => t.folder === ed.teacher) ? ed.teacher : '';
+  sel.classList.toggle('needs', teachers && !sel.value);
+}
+async function prepTeacherPicker() {
+  const s = getPub();
+  $('#ed-addteacher').classList.add('hidden');
+  renderTeacherPicker();
+  if (!s.repo || !s.token) return;
+  try { await ensureTeachers(s); } catch { edMsg("Couldn't load the list of teachers from GitHub.", 'bad'); }
+  renderTeacherPicker();
+}
+$('#ed-teacher').onchange = e => {
+  const v = e.target.value;
+  if (v === '__add') {
+    e.target.value = (teachers || []).some(t => t.folder === ed.teacher) ? ed.teacher : '';
+    $('#ed-addteacher').classList.remove('hidden');
+    $('#ed-newteacher').value = '';
+    $('#ed-newteacher').focus();
+    return;
+  }
+  $('#ed-addteacher').classList.add('hidden');
+  ed.teacher = v;
+  if (v) lsSet(TEACHER_KEY, v);
+  e.target.classList.toggle('needs', !v);
+  saveDraft();
+};
+$('#ed-newteacher').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); addTeacher(); }
+  if (e.key === 'Escape') { e.preventDefault(); $('#ed-addteacher').classList.add('hidden'); }
+});
+$('#ed-addteacher-btn').onclick = () => addTeacher();
+$('#ed-addteacher-cancel').onclick = () => $('#ed-addteacher').classList.add('hidden');
+async function addTeacher() {
+  const s = getPub();
+  const name = $('#ed-newteacher').value.trim().replace(/\s+/g, ' ');
+  const folder = folderFor(name);
+  if (!folder) return edMsg('Type the teacher name the way students know it, like Ms. Rivera.', 'bad');
+  const existing = (teachers || []).find(t => t.folder === folder);
+  const pick = f => {
+    ed.teacher = f; lsSet(TEACHER_KEY, f); saveDraft();
+    $('#ed-addteacher').classList.add('hidden');
+    renderTeacherPicker();
+  };
+  if (existing) { pick(existing.folder); return edMsg(`${existing.name} is already on the list, so we picked it.`, 'good'); }
+  const btn = $('#ed-addteacher-btn');
+  btn.disabled = true; edMsg('Adding…');
+  try {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const { list, sha } = await readTeachersFile(s);
+      if (!list.some(t => t.folder === folder)) list.push({ name, folder });
+      list.sort((a, b) => a.name.localeCompare(b.name));
+      const body = { message: 'Add teacher: ' + name, content: b64utf8(JSON.stringify(list, null, 2) + '\n'), branch: s.branch };
+      if (sha) body.sha = sha;
+      const r = await gh(`/repos/${s.repo}/contents/${encPath(quizRoot(s) + 'teachers.json')}`, { method: 'PUT', body: JSON.stringify(body) }, s.token);
+      if (r.ok) break;
+      if (!(r.status === 409 && attempt === 0)) { edMsg(ghError(r), 'bad'); return; }
+    }
+    await ensureTeachers(s, true);
+    pick(folder);
+    edMsg(`Added ${name}. Click Publish when you're ready.`, 'good');
+  } catch (r) {
+    edMsg(r instanceof Response ? ghError(r) : "Couldn't reach GitHub. Try again.", 'bad');
+  } finally { btn.disabled = false; }
+}
+
+// ---- Publish the quiz being edited ----
 $('#ed-publish').onclick = () => publish();
 async function publish() {
   if (pop) closePopover(true);
   const err = validate(); if (err) return edMsg(err, 'bad');
   const s = getPub();
   if (!s.repo || !s.token) return openPubSettings(publish);
-  let name = ed.publishedName || slug(ed.title) + '.html';
-  if (name.toLowerCase() === 'index.html') name = 'index-quiz.html';  // never overwrite the maker
-  const path = (s.folder ? s.folder + '/' : '') + name;
   const btn = $('#ed-publish');
-  btn.disabled = true; edMsg('Publishing…'); $('#ed-pub-result').classList.add('hidden');
+  btn.disabled = true; $('#ed-pub-result').classList.add('hidden');
   try {
+    try { await ensureTeachers(s); } catch (r) { edMsg(r instanceof Response ? ghError(r) : "Couldn't reach GitHub. Try again.", 'bad'); return; }
+    renderTeacherPicker();
+    if (!ed.teacher || !teachers.some(t => t.folder === ed.teacher)) {
+      edMsg('Choose your name under Teacher, then click Publish again.', 'bad');
+      $('#ed-teacher').focus();
+      return;
+    }
+    const tName = teacherName(ed.teacher);
+    let file = ed.publishedPath ? ed.publishedPath.split('/').pop() : slug(ed.title) + '.html';
+    if (file.toLowerCase() === 'index.html') file = 'index-quiz.html';
+    const path = quizRoot(s) + ed.teacher + '/' + file;
+    const oldPath = ed.publishedPath && ed.publishedPath !== path ? ed.publishedPath : null;
+    if (oldPath && !confirm(`Move this quiz into ${tName}'s quizzes? It will get a new link, and the old link will stop working.`)) { edMsg('Not published.'); return; }
+    edMsg('Publishing…');
     let sha = null;
     const g = await gh(`/repos/${s.repo}/contents/${encPath(path)}?ref=${encodeURIComponent(s.branch)}`, {}, s.token);
     if (g.ok) {
       sha = (await g.json()).sha;
-      if (!ed.publishedName && !confirm(`A quiz called "${name}" is already published. Replace it with this one?`)) { edMsg('Not published. Change the quiz title to publish it under a new name.'); return; }
+      if (path !== ed.publishedPath && !confirm(`${tName} already has a published quiz called "${file.replace(/\.html$/i, '').replace(/-/g, ' ')}". Replace it with this one?`)) {
+        edMsg('Not published. Change the quiz title to publish it as a separate quiz.'); return;
+      }
     } else if (g.status !== 404) { edMsg(ghError(g), 'bad'); return; }
-    const body = { message: `${sha ? 'Update' : 'Add'} quiz: ${ed.title.trim() || name}`, content: b64utf8(buildStudentHtml()), branch: s.branch };
+    const body = { message: `${sha ? 'Update' : 'Add'} quiz for ${tName}: ${ed.title.trim() || file}`, content: b64utf8(buildStudentHtml()), branch: s.branch };
     if (sha) body.sha = sha;
     const put = await gh(`/repos/${s.repo}/contents/${encPath(path)}`, { method: 'PUT', body: JSON.stringify(body) }, s.token);
     if (!put.ok) { edMsg(ghError(put), 'bad'); return; }
-    ed.publishedName = name; saveDraft();
+    if (oldPath) {
+      const og = await gh(`/repos/${s.repo}/contents/${encPath(oldPath)}?ref=${encodeURIComponent(s.branch)}`, {}, s.token);
+      if (og.ok) {
+        const osha = (await og.json()).sha;
+        await gh(`/repos/${s.repo}/contents/${encPath(oldPath)}`, { method: 'DELETE',
+          body: JSON.stringify({ message: 'Move quiz to ' + tName, sha: osha, branch: s.branch }) }, s.token);
+      }
+    }
+    ed.publishedPath = path; saveDraft();
     edMsg('');
-    showPubResult(pagesBase(s.repo) + encPath(path), !!sha);
+    showPubResult(pagesBase(s.repo) + encPath(path), !!sha && !oldPath, tName);
   } catch {
     edMsg("Couldn't reach GitHub. Check the internet connection and try again.", 'bad');
   } finally { btn.disabled = false; }
@@ -857,10 +1067,10 @@ function copyText(text, btn) {
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => prompt('Copy this link:', text));
   else prompt('Copy this link:', text);
 }
-function showPubResult(url, updated) {
+function showPubResult(url, updated, tName) {
   const box = $('#ed-pub-result'); box.innerHTML = '';
   const p = document.createElement('div');
-  p.append((updated ? 'Updated! ' : 'Published! ') + 'Share this link with students:', document.createElement('br'));
+  p.append(`${updated ? 'Updated' : 'Published'} in ${tName}'s quizzes. Share this link with students:`, document.createElement('br'));
   const a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = url;
   p.appendChild(a);
   const note = document.createElement('div'); note.className = 'msg';
@@ -872,54 +1082,228 @@ function showPubResult(url, updated) {
   box.append(p, note, row); box.classList.remove('hidden');
 }
 
-// List of published quizzes on the start screen
+// ---- Published quizzes on the start screen, grouped by teacher ----
+let pubQuizzes = [];
 async function loadPublishedList() {
   const s = getPub(), list = $('#pub-list'), m = $('#pub-list-msg');
   list.innerHTML = '';
-  if (!s.repo) { m.textContent = 'Not set up yet. Click "Publishing settings" to connect your quiz website.'; return; }
+  const locked = !s.repo || !s.token;
+  $('#pub-refresh').classList.toggle('hidden', locked);
+  $('#pub-filter-wrap').classList.add('hidden');
+  $('#home-pubset').textContent = locked ? 'Enter publishing key' : 'Publishing settings';
+  if (locked) { m.textContent = 'Enter the publishing key to see and manage published quizzes.'; return; }
   m.textContent = 'Loading…';
   try {
-    const r = await gh(`/repos/${s.repo}/contents/${encPath(s.folder)}?ref=${encodeURIComponent(s.branch)}`, {}, s.token);
-    if (r.status === 404) { m.textContent = 'Nothing published yet.'; return; }
-    if (!r.ok) { m.textContent = ghError(r); return; }
-    const files = (await r.json()).filter(f => f.type === 'file' && /\.html$/i.test(f.name) && f.name.toLowerCase() !== 'index.html');
-    m.textContent = files.length ? `${files.length} quiz${files.length === 1 ? '' : 'zes'} on ${s.repo}` : 'Nothing published yet.';
-    const base = pagesBase(s.repo);
-    files.forEach(f => {
-      const url = base + encPath(f.path);
-      const li = document.createElement('li');
-      const nm = document.createElement('span'); nm.className = 'nm';
-      nm.textContent = f.name.replace(/\.html$/i, '').replace(/-/g, ' ');
-      const open = document.createElement('a'); open.href = url; open.target = '_blank'; open.rel = 'noopener'; open.textContent = 'Open';
-      const copy = document.createElement('button'); copy.className = 'small'; copy.textContent = 'Copy link';
-      copy.onclick = () => copyText(url, copy);
-      const edit = document.createElement('button'); edit.className = 'small'; edit.textContent = 'Edit';
-      edit.onclick = async () => {
-        edit.disabled = true;
-        try {
-          const rr = await fetch(f.download_url, { cache: 'no-store' });
-          const q = rr.ok ? quizFromHtml(await rr.text()) : null;
-          if (!q) { m.textContent = "Couldn't open that quiz for editing."; return; }
-          q.publishedName = f.name;
-          openEditor(q);
-        } catch { m.textContent = "Couldn't reach GitHub."; }
-        finally { edit.disabled = false; }
-      };
-      const del = document.createElement('button'); del.className = 'small danger'; del.textContent = 'Unpublish';
-      del.onclick = async () => {
-        const cur = getPub();
-        if (!cur.token) return openPubSettings(loadPublishedList);
-        if (!confirm(`Unpublish "${nm.textContent}"? The student link will stop working.`)) return;
-        const rr = await gh(`/repos/${cur.repo}/contents/${encPath(f.path)}`, { method: 'DELETE',
-          body: JSON.stringify({ message: 'Remove quiz: ' + f.name, sha: f.sha, branch: cur.branch }) }, cur.token);
-        if (!rr.ok) { m.textContent = ghError(rr); return; }
-        loadPublishedList();
-      };
-      li.append(nm, open, copy, edit, del); list.appendChild(li);
-    });
-  } catch { m.textContent = "Couldn't reach GitHub to list published quizzes."; }
+    pubQuizzes = await readQuizTree(s);
+    await loadTeachers(s, pubQuizzes);
+    renderFilter();
+    renderPublished();
+  } catch (r) {
+    m.textContent = r instanceof Response ? ghError(r) : "Couldn't reach GitHub to list published quizzes.";
+  }
+}
+function renderFilter() {
+  const sel = $('#pub-filter');
+  const hasUnsorted = pubQuizzes.some(q => !q.teacher);
+  sel.innerHTML = '';
+  sel.append(new Option('All teachers', 'all'));
+  teachers.forEach(t => sel.append(new Option(t.name, t.folder)));
+  if (hasUnsorted) sel.append(new Option('Not sorted yet', '__unsorted'));
+  const valid = v => v && [...sel.options].some(o => o.value === v);
+  const saved = lsGet(FILTER_KEY), mine = lsGet(TEACHER_KEY);
+  sel.value = valid(saved) ? saved : valid(mine) ? mine : 'all';
+  $('#pub-filter-wrap').classList.toggle('hidden', !teachers.length && !hasUnsorted);
+}
+$('#pub-filter').onchange = e => { lsSet(FILTER_KEY, e.target.value); renderPublished(); };
+function renderPublished() {
+  const s = getPub(), list = $('#pub-list'), m = $('#pub-list-msg');
+  list.innerHTML = '';
+  const f = $('#pub-filter').value || 'all';
+  const n = pubQuizzes.length, tn = teachers.length;
+  m.textContent = n ? `${n} quiz${n === 1 ? '' : 'zes'} from ${tn} teacher${tn === 1 ? '' : 's'}` : 'Nothing published yet.';
+  const groups = [...teachers, { name: 'Not sorted yet', folder: '' }]
+    .map(g => ({ ...g, items: pubQuizzes.filter(q => q.teacher === g.folder).sort((a, b) => a.name.localeCompare(b.name)) }))
+    .filter(g => f === 'all' ? g.items.length : g.folder === (f === '__unsorted' ? '' : f));
+  const base = pagesBase(s.repo);
+  groups.forEach(g => {
+    const head = document.createElement('li'); head.className = 'group';
+    const h = document.createElement('h3'); h.textContent = g.name;
+    const c = document.createElement('span'); c.className = 'msg'; c.textContent = `${g.items.length} quiz${g.items.length === 1 ? '' : 'zes'}`;
+    head.append(h, c); list.appendChild(head);
+    if (!g.items.length) {
+      const li = document.createElement('li'); li.className = 'msg';
+      li.textContent = 'No quizzes yet. Pick this name under Teacher when you publish.';
+      list.appendChild(li);
+    }
+    g.items.forEach(q => list.appendChild(quizRow(q, base, s)));
+  });
+}
+function quizRow(q, base, s) {
+  const m = $('#pub-list-msg');
+  const url = base + encPath(q.path);
+  const li = document.createElement('li');
+  const nm = document.createElement('span'); nm.className = 'nm';
+  nm.textContent = q.name.replace(/\.html$/i, '').replace(/-/g, ' ');
+  const open = document.createElement('a'); open.href = url; open.target = '_blank'; open.rel = 'noopener'; open.textContent = 'Open';
+  const copy = document.createElement('button'); copy.className = 'small'; copy.textContent = 'Copy link';
+  copy.onclick = () => copyText(url, copy);
+  const edit = document.createElement('button'); edit.className = 'small'; edit.textContent = 'Edit';
+  edit.onclick = async () => {
+    edit.disabled = true;
+    try {
+      const rr = await gh(`/repos/${s.repo}/contents/${encPath(q.path)}?ref=${encodeURIComponent(s.branch)}`, { accept: 'application/vnd.github.raw' }, s.token);
+      const quiz = rr.ok ? quizFromHtml(await rr.text()) : null;
+      if (!quiz) { m.textContent = "Couldn't open that quiz for editing."; return; }
+      quiz.publishedPath = q.path;
+      quiz.teacher = q.teacher;
+      openEditor(quiz);
+    } catch { m.textContent = "Couldn't reach GitHub."; }
+    finally { edit.disabled = false; }
+  };
+  const del = document.createElement('button'); del.className = 'small danger'; del.textContent = 'Unpublish';
+  del.onclick = async () => {
+    if (!confirm(`Unpublish "${nm.textContent}"? The student link will stop working.`)) return;
+    const rr = await gh(`/repos/${s.repo}/contents/${encPath(q.path)}`, { method: 'DELETE',
+      body: JSON.stringify({ message: 'Remove quiz: ' + q.path, sha: q.sha, branch: s.branch }) }, s.token);
+    if (!rr.ok) { m.textContent = ghError(rr); return; }
+    loadPublishedList();
+  };
+  li.append(nm, open, copy, edit, del);
+  return li;
 }
 $('#pub-refresh').onclick = () => loadPublishedList();
+
+/* ---------------- PRINTABLE WORKSHEET ---------------- */
+// Builds a 2-page printout (worksheet + answer key) inside a hidden frame and opens the print window.
+// Numbers are shuffled every time, so each printout can be a different version.
+const escHtml = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function buildWorksheet(q, withBank, aspect) {
+  const pts = shuffle(q.points);                         // pts[i] is number i + 1
+  const n = pts.length;
+  // Try landscape/portrait pages with the blanks beside or below the map; keep whichever gives the biggest map.
+  const colWOf = c => c === 1 ? 2.9 : c === 2 ? 2.2 : 1.85;
+  const bankChars = withBank ? q.points.reduce((t, p) => t + p.name.length + 5, 11) : 0;
+  let best = null;
+  for (const landscape of [true, false]) {
+    const W = landscape ? 10 : 7.5, H = landscape ? 7.4 : 9.9;
+    const bankH = withBank ? 0.36 + Math.ceil(bankChars * 0.075 / (W - 0.3)) * 0.18 : 0;
+    const H0 = H - 0.62 - bankH;
+    for (const side of [true, false]) {
+      let cols, rows, rowH, mapW, mapH;
+      if (side) {
+        cols = Math.min(3, Math.ceil(n / Math.floor(H0 / 0.34))); rows = Math.ceil(n / cols);
+        rowH = Math.min(0.34, H0 / rows);
+        mapW = W - (cols * colWOf(cols) + (cols - 1) * 0.22) - 0.28; mapH = H0;
+      } else {
+        cols = n <= 6 ? 2 : W >= 9 ? 4 : 3; rows = Math.ceil(n / cols);
+        rowH = Math.min(0.34, H0 * 0.45 / rows);
+        mapW = W; mapH = H0 - rows * rowH - 0.28;
+      }
+      const w = Math.min(mapW, mapH * aspect), area = w * (w / aspect);
+      if (!best || area > best.area) best = { landscape, side, cols, rows, rowH, area };
+    }
+  }
+  const { landscape, side, cols, rows, rowH } = best;
+  const colW = colWOf(cols);
+  const font = rowH < 0.24 ? 8.5 : rowH < 0.3 ? 9.5 : 11;
+  const marker = n > 40 ? 0.19 : n > 20 ? 0.22 : 0.26;
+  const markers = pts.map((p, i) =>
+    `<div class="n" style="left:${(p.x * 100).toFixed(3)}%;top:${(p.y * 100).toFixed(3)}%">${i + 1}</div>`).join('');
+  const map = `<div class="maparea"><div class="stage"><img src="${q.image}" alt=""><div class="layer">${markers}</div></div></div>`;
+  const grid = `grid-template-rows:repeat(${rows},${rowH}in);grid-template-columns:repeat(${cols},${side ? colW + 'in' : '1fr'});font-size:${font}pt`;
+  const blanks = pts.map((p, i) => `<div><b>${i + 1}.</b><span class="line"></span></div>`).join('');
+  const answers = pts.map((p, i) => `<div><b>${i + 1}.</b><span class="ans">${escHtml(p.name)}</span></div>`).join('');
+  const bank = withBank
+    ? `<div class="bank"><strong>Word bank</strong>${q.points.map(p => p.name).sort((a, b) => a.localeCompare(b)).map(nm => `<span>${escHtml(nm)}</span>`).join('')}</div>` : '';
+  const title = escHtml(q.title);
+  const page = (head, extra, list) => `
+<section class="page ${side ? 'side' : 'below'}">
+  <header>${head}</header>${extra}
+  <div class="body">${map}<div class="answers" style="${grid}">${list}</div></div>
+</section>`;
+  const W = landscape ? 10 : 7.5, H = landscape ? 7.5 : 10;
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${title} worksheet</title><style>
+@page{size:letter ${landscape ? 'landscape' : 'portrait'};margin:.5in}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff}
+body{font-family:Arial,Helvetica,sans-serif;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:${W}in;height:${H - 0.1}in;display:flex;flex-direction:column;overflow:hidden;break-after:page;page-break-after:always}
+.page:last-child{break-after:auto;page-break-after:auto}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:.3in;border-bottom:2px solid #000;padding-bottom:.08in;margin-bottom:.14in}
+h1{font-size:19pt;margin:0;line-height:1.1}
+.who{font-size:11pt;white-space:nowrap}
+.who span{display:inline-block;border-bottom:1px solid #000;width:2.1in;margin:0 .12in 0 4px}
+.who span.short{width:1.1in;margin-right:0}
+.key{font-size:11pt;font-weight:bold;border:1.5px solid #000;border-radius:4px;padding:2px 8px;white-space:nowrap}
+.body{flex:1;min-height:0;display:flex;gap:.28in}
+.below .body{flex-direction:column}
+.below .maparea{justify-content:center}
+.maparea{flex:1;min-height:0;min-width:0;display:flex;align-items:flex-start;justify-content:center}
+.stage{position:relative;display:inline-block;line-height:0;outline:1.5px solid #000}
+.stage img{display:block}
+.layer{position:absolute;inset:0}
+.n{position:absolute;transform:translate(-50%,-50%);width:${marker}in;height:${marker}in;border-radius:50%;background:#fff;border:1.5px solid #000;
+   font:bold ${marker > 0.22 ? 10 : 8.5}pt/1 Arial,Helvetica,sans-serif;display:flex;align-items:center;justify-content:center}
+.answers{display:grid;grid-auto-flow:column;column-gap:.22in;align-content:start;flex-shrink:0}
+.answers div{display:flex;align-items:flex-end;gap:5px;padding-bottom:3px;min-width:0}
+.answers b{min-width:1.6em;text-align:right}
+.answers .line{flex:1;border-bottom:1px solid #000;height:1.1em}
+.answers .ans{flex:1;border-bottom:1px solid #bbb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bank{border:1.5px solid #000;border-radius:5px;padding:.05in .12in;font-size:10pt;margin-bottom:.12in;line-height:1.6}
+.bank strong{margin-right:.15in}
+.bank span{display:inline-block;margin-right:.22in}
+</style></head><body>
+${page(`<h1>${title}</h1><div class="who">Name<span></span>Date<span class="short"></span></div>`, bank, blanks)}
+${page(`<h1>${title}</h1><div class="key">Answer key</div>`, '', answers)}
+<script>
+(async () => {
+  const imgs = [...document.images];
+  await Promise.all(imgs.map(i => i.decode().catch(() => {})));
+  document.querySelectorAll('.maparea').forEach(a => {
+    const img = a.querySelector('img'), r = img.naturalWidth / img.naturalHeight;
+    let w = a.clientWidth - 2, h = a.clientHeight - 2;
+    if (w / h > r) w = h * r; else h = w / r;
+    img.style.width = w + 'px'; img.style.height = h + 'px';
+    if (a.closest('.below')) { a.style.flex = 'none'; a.style.height = (h + 2) + 'px'; }
+  });
+  window.worksheetReady = true;
+  addEventListener('afterprint', () => parent.postMessage('worksheet-done', '*'));
+  if (!window.NO_PRINT) setTimeout(() => print(), 60);
+})();
+<\/script></body></html>`;
+}
+let titleBeforePrint = null;
+function printWorksheet(q, withBank) {
+  const img = new Image();
+  img.onload = () => {
+    const html = buildWorksheet(q, withBank, img.naturalWidth / img.naturalHeight);
+    const old = $('#print-frame'); if (old) old.remove();
+    const f = document.createElement('iframe');
+    f.id = 'print-frame'; f.title = 'Printable worksheet';
+    f.style.cssText = 'position:fixed;left:0;top:0;width:11in;height:11in;border:0;opacity:0;pointer-events:none;z-index:-1';
+    if (titleBeforePrint === null) titleBeforePrint = document.title;
+    document.title = q.title + ' worksheet';      // becomes the suggested PDF file name
+    f.srcdoc = html;
+    document.body.appendChild(f);
+    edMsg('Opening the print window. Choose "Save as PDF" to download it.', 'good');
+  };
+  img.onerror = () => edMsg("Couldn't read the map image.", 'bad');
+  img.src = q.image;
+}
+window.addEventListener('message', e => {
+  if (e.data === 'worksheet-done' && titleBeforePrint !== null) { document.title = titleBeforePrint; titleBeforePrint = null; }
+});
+$('#ed-worksheet').onclick = () => {
+  if (pop) closePopover(true);
+  const err = validate(); if (err) return edMsg(err, 'bad');
+  $('#ws-dlg').showModal();
+};
+$('#ws-cancel').onclick = () => $('#ws-dlg').close();
+$('#ws-form').onsubmit = e => {
+  e.preventDefault();
+  $('#ws-dlg').close();
+  printWorksheet(cleanQuiz(), $('#ws-bank').checked);
+};
 
 /* ---------------- SETUP / PLAYER ---------------- */
 let currentQuiz = null, setupCtx = {}, game = null, timerId = null;
@@ -928,7 +1312,10 @@ const plStage = $('#pl-stage'), plLayer = $('#pl-layer'), tip = $('#pl-tip');
 function startSetup(q, ctx) {
   currentQuiz = q; setupCtx = ctx || {};
   $('#su-title').textContent = q.title;
-  $('#su-count').textContent = `Find ${q.points.length} place${q.points.length === 1 ? '' : 's'} on the map. You get three tries at each one.`;
+  const np = q.points.length, s = np === 1 ? '' : 's';
+  $('#su-count').textContent = q.mode === 'type'
+    ? `Name ${np} place${s} on the map. Click a dot and type its name. You get three tries at each one.`
+    : `Find ${np} place${s} on the map. You get three tries at each one.`;
   $('#su-map').src = q.image;
   $('#su-back').textContent = setupCtx.from === 'editor' ? 'Back to editor' : 'Back';
   $('#top-sub').textContent = lockedPlay ? '' : 'Quiz maker for teachers';
@@ -941,17 +1328,20 @@ $('#su-start').onclick = () => startGame(null);
 function startGame(onlyIds) {
   const q = currentQuiz;
   const pool = onlyIds ? q.points.filter(p => onlyIds.includes(p.id)) : q.points.slice();
-  const order = $('#su-shuffle').checked ? shuffle(pool) : pool;
+  const order = q.shuffle ? shuffle(pool) : pool;
   game = {
     queue: order.map(p => p.id), order: order.map(p => p.id),
     byId: Object.fromEntries(q.points.map(p => [p.id, p])),
     total: order.length, current: null, tries: {}, wrong: {}, done: new Set(),
-    firstTry: 0, answered: 0, start: Date.now(), labels: $('#su-labels').checked, onlyIds
+    firstTry: 0, answered: 0, start: Date.now(), labels: q.showNames, onlyIds,
+    mode: q.mode, fuzzy: q.fuzzy, close: {}, pool
   };
+  closeAnswer();
+  $('#pl-skip').classList.toggle('hidden', q.mode === 'type');
   $('#pl-img').src = q.image;
   plStage.style.setProperty('--d', q.dotSize + 'px');
   plLayer.innerHTML = '';
-  q.points.forEach(p => {
+  (q.mode === 'type' ? pool : q.points).forEach(p => {
     const b = document.createElement('button');
     b.className = 'dot'; b.type = 'button'; b.dataset.id = p.id;
     b.style.left = p.x * 100 + '%'; b.style.top = p.y * 100 + '%';
@@ -962,7 +1352,17 @@ function startGame(onlyIds) {
   timerId = setInterval(() => { $('#pl-time').textContent = fmtTime(Date.now() - game.start); }, 500);
   $('#pl-time').textContent = '00:00';
   show('player');
-  next();
+  if (q.mode === 'type') {
+    game.current = 'type';
+    $('#pl-lead').textContent = 'Click a dot and';
+    const tg = $('#pl-target'); tg.textContent = 'type its name';
+    tg.classList.remove('pop'); void tg.offsetWidth; tg.classList.add('pop');
+    tip.classList.add('hidden');
+    updateBar();
+  } else {
+    $('#pl-lead').textContent = 'Click on';
+    next();
+  }
 }
 function dotEl(id) { return plLayer.querySelector(`[data-id="${id}"]`); }
 function next() {
@@ -990,6 +1390,7 @@ function showTag(btn, text, kind, ms) {
 }
 function onDot(id, btn) {
   if (!game || !game.current) return;
+  if (game.mode === 'type') return onTypeDot(id, btn);
   const name = game.byId[id].name;
   if (game.done.has(id)) { if (!game.labels) showTag(btn, name, 'info', 1200); return; }
   const cur = game.current;
@@ -1017,10 +1418,10 @@ $('#pl-skip').onclick = () => {
 };
 $('#pl-quit').onclick = () => {
   if (game && game.answered < game.total && !confirm('Quit this quiz? Your progress will be lost.')) return;
-  clearInterval(timerId); game = null; show('setup');
+  clearInterval(timerId); closeAnswer(); game = null; show('setup');
 };
 plStage.addEventListener('pointermove', e => {
-  if (!game || !game.current) return;
+  if (!game || !game.current || game.mode === 'type') return;
   const r = plStage.getBoundingClientRect();
   const x = e.clientX - r.left, y = e.clientY - r.top;
   tip.classList.remove('hidden');
@@ -1030,6 +1431,107 @@ plStage.addEventListener('pointermove', e => {
 });
 plStage.addEventListener('pointerleave', () => tip.classList.add('hidden'));
 
+/* ----- Type-the-name mode ----- */
+// Compare answers loosely: ignore case, accents, punctuation, spaces, a leading "the", and St./Mt. abbreviations.
+function normName(s) {
+  return ' ' + s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ') + ' ';
+}
+function compact(s) {
+  return normName(s).replace(/ st /g, ' saint ').replace(/ ste /g, ' sainte ').replace(/ mt /g, ' mount ').replace(/ ft /g, ' fort ')
+    .replace(/^ the /, ' ').replace(/ /g, '');
+}
+// Edit distance where a swapped pair of letters counts as one typo.
+function lev(a, b) {
+  if (a === b) return 0;
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++) {
+      const c = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + c);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+  return d[a.length][b.length];
+}
+const typoAllowance = n => n <= 3 ? 0 : n <= 5 ? 1 : n <= 10 ? 2 : 3;
+function gradeAnswer(typed, p, all, fuzzy) {
+  const t = compact(typed), goal = compact(p.name);
+  if (!t) return 'empty';
+  if (t === goal) return 'exact';
+  if (!fuzzy) return 'wrong';
+  const d = lev(t, goal);
+  if (d > typoAllowance(goal.length)) return 'wrong';
+  // A close spelling of a different place in this quiz doesn't count.
+  if (all.some(o => o !== p && lev(t, compact(o.name)) < d)) return 'wrong';
+  return 'close';
+}
+let ansFor = null;
+const ansBox = $('#pl-ans'), ansInput = $('#pl-ans-input'), ansMsg = $('#pl-ans-msg');
+function closeAnswer() {
+  ansFor = null; ansBox.classList.add('hidden');
+  plLayer.querySelectorAll('.dot.selected').forEach(d => d.classList.remove('selected'));
+}
+function onTypeDot(id, btn) {
+  if (game.done.has(id)) { showTag(btn, game.byId[id].name, 'info above', 1200); return; }
+  closeAnswer();
+  ansFor = id;
+  const p = game.byId[id];
+  btn.classList.add('selected');
+  ansBox.style.left = p.x * 100 + '%'; ansBox.style.top = p.y * 100 + '%';
+  const tx = p.x < 0.2 ? '-10%' : p.x > 0.8 ? '-90%' : '-50%';
+  const off = currentQuiz.dotSize / 2 + 10;
+  ansBox.style.transform = `translate(${tx}, ${p.y > 0.72 ? `calc(-100% - ${off}px)` : off + 'px'})`;
+  ansInput.value = '';
+  const left = 3 - (game.tries[id] || 0);
+  ansMsg.textContent = left < 3 ? `${left} ${left === 1 ? 'try' : 'tries'} left.` : '';
+  ansMsg.className = 'msg';
+  ansBox.classList.remove('hidden');
+  setTimeout(() => ansInput.focus(), 0);
+}
+function markDone(id, cls) {
+  const btn = dotEl(id);
+  btn.classList.remove('selected');
+  btn.classList.add('done', cls);
+  const t = document.createElement('span'); t.className = 'tag'; t.textContent = game.byId[id].name;
+  btn.appendChild(t);
+  game.done.add(id); game.answered++;
+  updateBar();
+  if (game.answered === game.total) setTimeout(() => { if (game) finish(); }, 700);
+}
+ansBox.addEventListener('submit', e => {
+  e.preventDefault();
+  if (!game || !ansFor) return;
+  const id = ansFor, p = game.byId[id], typed = ansInput.value.trim();
+  const g = gradeAnswer(typed, p, game.pool, game.fuzzy);
+  if (g === 'empty') { ansInput.focus(); return; }
+  if (g === 'exact' || g === 'close') {
+    const a = game.tries[id] || 0;
+    if (a === 0) game.firstTry++;
+    if (g === 'close') game.close[id] = typed;
+    closeAnswer();
+    markDone(id, a === 0 ? 'c0' : a === 1 ? 'c1' : 'c2');
+    if (g === 'close') showTag(dotEl(id), 'Close! Check the spelling.', 'info above', 2200);
+    return;
+  }
+  game.tries[id] = (game.tries[id] || 0) + 1;
+  (game.wrong[id] = game.wrong[id] || []).push(typed);
+  if (game.tries[id] >= 3) {
+    closeAnswer();
+    markDone(id, 'missed');
+    showTag(dotEl(id), 'Here is the answer.', 'bad above', 2200);
+    return;
+  }
+  const left = 3 - game.tries[id];
+  ansMsg.textContent = `Not quite. ${left} ${left === 1 ? 'try' : 'tries'} left.`;
+  ansMsg.className = 'msg bad';
+  ansBox.classList.remove('shake'); void ansBox.offsetWidth; ansBox.classList.add('shake');
+  ansInput.select();
+});
+ansInput.addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); closeAnswer(); } });
+ansBox.addEventListener('click', e => e.stopPropagation());
+plStage.addEventListener('click', e => { if (ansFor && !e.target.closest('.dot, .popover')) closeAnswer(); });
+
 function finish() {
   clearInterval(timerId);
   tip.classList.add('hidden');
@@ -1038,8 +1540,11 @@ function finish() {
   const pct = Math.round(game.firstTry / game.total * 100);
   $('#rs-head').textContent = pct === 100 ? 'Perfect score!' : pct >= 80 ? 'Nice work!' : pct >= 50 ? 'Getting there!' : 'Keep practicing!';
   $('#rs-score').textContent = pct + '%';
-  $('#rs-sub').textContent = `You found ${game.firstTry} of ${game.total} on the first try in ${fmtTime(elapsed)}.`;
-  const misses = game.order.filter(id => game.tries[id]).sort((a, b) => game.tries[b] - game.tries[a]);
+  closeAnswer();
+  const typeMode = game.mode === 'type';
+  $('#rs-sub').textContent = `You ${typeMode ? 'named' : 'found'} ${game.firstTry} of ${game.total} on the first try in ${fmtTime(elapsed)}.`;
+  const misses = game.order.filter(id => game.tries[id] || game.close[id])
+    .sort((a, b) => (game.tries[b] || 0) - (game.tries[a] || 0));
   const box = $('#rs-misses'); box.innerHTML = '';
   if (!misses.length) {
     box.innerHTML = '<p class="perfect">No misses. You nailed every place!</p>';
@@ -1051,8 +1556,16 @@ function finish() {
       const li = document.createElement('li');
       const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = game.byId[id].name;
       const info = document.createElement('span'); info.className = 'info';
-      const n = game.tries[id];
-      info.textContent = `${n} wrong click${n === 1 ? '' : 's'}. You picked ${game.wrong[id].join(', ')}.`;
+      const n = game.tries[id] || 0;
+      if (!typeMode) {
+        info.textContent = `${n} wrong click${n === 1 ? '' : 's'}. You picked ${game.wrong[id].join(', ')}.`;
+      } else {
+        const parts = [];
+        if (n) parts.push(`${n} wrong ${n === 1 ? 'guess' : 'guesses'}: ${game.wrong[id].map(w => '"' + w + '"').join(', ')}.`);
+        if (n >= 3) parts.push('The answer was shown.');
+        if (game.close[id]) parts.push(`Counted as right, but you typed "${game.close[id]}".`);
+        info.textContent = parts.join(' ');
+      }
       li.append(nm, info); ul.appendChild(li);
     });
     wrap.append(h, ul); box.appendChild(wrap);
@@ -1074,10 +1587,6 @@ if (embedded && params.has('edit')) {
 } else if (embedded) {
   lockedPlay = true; document.body.classList.add('student');
   startSetup(embedded, { from: 'student' });
-} else if (params.get('quiz')) {
-  fetch(params.get('quiz')).then(r => { if (!r.ok) throw 0; return r.json(); })
-    .then(j => { const q = normalize(j); if (!playable(q)) throw 0; startSetup(q, { from: 'home' }); })
-    .catch(() => showHome('Could not load that quiz file.'));
 } else {
   showHome();
 }
